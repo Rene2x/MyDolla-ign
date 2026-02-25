@@ -129,18 +129,105 @@ def get_term(term_id):
 @glossary_bp.route('/glossary/explain', methods=['POST'])
 def explain_term():
     """
-    Get an AI-powered explanation of a financial term.
-    
-    TODO (Member 3): Implement AI-powered explanations
-    
+    Get an AI-powered explanation of a financial term using Gemini.
+
     Expected JSON body:
     {
         "term": "ETF",
         "complexity": "beginner"  // beginner, intermediate, advanced
     }
     """
-    # TODO (Member 3): Implement this endpoint
+    # Import here to avoid circular imports at module load time
+    from app.services.ai_service import get_gemini_client, GEMINI_AVAILABLE
+
+    if not GEMINI_AVAILABLE:
+        return jsonify({
+            'error': 'unavailable',
+            'message': 'AI explanations are currently unavailable.'
+        }), 503
+
+    data = request.get_json() or {}
+    term = (data.get('term') or '').strip()
+    complexity = (data.get('complexity') or 'beginner').lower()
+    custom_prompt = (data.get('custom_prompt') or '').strip()
+
+    if not term:
+        return jsonify({
+            'error': 'invalid_request',
+            'message': 'term is required'
+        }), 400
+
+    if complexity not in ['beginner', 'intermediate', 'advanced']:
+        complexity = 'beginner'
+
+    # Try to find a base glossary definition
+    base_def = next(
+        (t for t in GLOSSARY_TERMS if t['term'].lower() == term.lower()),
+        None,
+    )
+    base_text = base_def['definition'] if base_def else ''
+
+    try:
+        # Try AI first; if it fails, we'll fall back to rule-based explanation below
+        client = get_gemini_client()
+
+        if custom_prompt:
+            # User provided a custom prompt/question
+            prompt = f"""The user is asking about the financial term "{term}".
+
+Existing definition (if helpful): {base_text}
+
+User's specific question/request: {custom_prompt}
+
+Answer their question clearly and simply. Use 2-4 short paragraphs. Include examples if helpful. Do NOT recommend specific investments or products.
+"""
+        else:
+            # Standard explanation
+            prompt = f"""Explain the financial term "{term}" for a {complexity} learner.
+
+Existing definition (if helpful): {base_text}
+
+Rules:
+- Use 2-3 short paragraphs max.
+- Use simple, friendly language.
+- Include ONE concrete example.
+- Do NOT recommend specific investments or products.
+
+Format:
+- First paragraph: simple explanation.
+- Second paragraph: example.
+"""
+
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt,
+            config={
+                "max_output_tokens": 400,
+                "temperature": 0.5,
+            },
+        )
+        text = response.text or ""
+
+        return jsonify({
+            'term': term,
+            'complexity': complexity,
+            'explanation': text.strip(),
+        }), 200
+
+    except Exception as e:
+        # Log for debugging, but don't break the UI
+        print(f"Glossary AI explanation error (fallback to rule-based): {type(e).__name__}: {e}")
+
+    # Rule-based fallback explanation when AI fails
+    if base_text:
+        explanation = f"Here is a simple explanation of {term}:\n\n{base_text}\n\n"
+        if custom_prompt:
+            explanation += f"In the context of your question (“{custom_prompt}”), think of {term} this way: {base_text}"
+    else:
+        explanation = f"{term} is a financial term. At the moment we don't have a detailed definition stored, but it usually refers to a concept used in investing or budgeting."
+
     return jsonify({
-        'message': 'AI explanation endpoint - coming soon!',
-        'status': 'not_implemented'
-    }), 501
+        'term': term,
+        'complexity': complexity,
+        'explanation': explanation,
+    }), 200

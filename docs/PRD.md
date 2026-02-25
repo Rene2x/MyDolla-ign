@@ -47,6 +47,10 @@
 
 7. **As a** user, **I want** the platform to be simple, **so that** I don't feel overwhelmed by financial terminology.
 
+8. **As a** user, **I want** to choose a primary financial goal (for example, emergency fund, debt payoff, big purchase), **so that** the advice and saving plan are focused on what matters most to me.
+
+9. **As a** user, **I want** to run simple “what-if” scenarios (for example, spending less on eating out) against my existing budget, **so that** I can see the impact of changes without re-entering everything.
+
 ---
 
 ## 4. MVP Scope vs. Non-Goals
@@ -56,30 +60,36 @@
 1. **Budget Input Form**
    - Income input field (monthly, after taxes)
    - Expense categories: Rent/Housing, Food/Groceries, Transportation, Entertainment, Utilities, Savings, Other
+   - Primary goal selection (for example, general, emergency fund, debt payoff, big purchase) to focus the analysis
    - Simple, clean UI with real-time total calculation
 
-2. **AI-Generated Budget Analysis**
-   - Spending pattern explanation in plain English
-   - Category-by-category breakdown with percentages
-   - Personalized budgeting tips based on user's data
-   - Explanation of budgeting concepts (like the 50/30/20 rule)
+2. **AI-Generated Budget Analysis** (via Google Gemini, free tier, with rule-based fallback)
+   - **Financial advice:** One short paragraph, personalized to the user's numbers
+   - **Saving tips:** 3–5 actionable bullets (for example, emergency fund, auto-transfers)
+   - **Where savings could go:** Educational only—general categories (for example, high-yield savings, retirement accounts, index funds); no specific products or recommendations; always “talk to a licensed advisor”
+   - **Saving plan:** Short 3–6 month plan aligned to the user's selected goal, using code-calculated numbers and AI narrative when available
+   - Category-by-category breakdown and percentages (computed in code)
+   - Explanation of budgeting concepts (for example, 50/30/20) in insights
+   - Graceful fallback: when Gemini is unavailable (for example, due to rate limits or quota), the backend returns a deterministic rule-based response with the same structure so the UI always has content
 
 3. **Results Display**
-   - Clear budget summary showing income vs. expenses
-   - Visual breakdown (progress bars showing percentage per category)
-   - Actionable insights list
+   - Sections: Financial advice, Saving tips, Where savings could go, Saving plan
+   - Clear budget summary and visual breakdown (progress bars per category)
+   - Visualizations: expense pie chart and 50/30/20 rule comparison chart
+   - Simple what-if scenario panel that lets users describe a change in one category in plain language and re-runs the analysis while preserving the original baseline
+   - Actionable insights list and disclaimer
 
 ### Nice-to-Have Features (Post-MVP)
 
 - User accounts and saved budgets
 - Budget tracking over time (month-to-month comparison)
-- Pie chart or bar chart visualization
+- Additional advanced visualizations (for example, trends over time, multi-month comparisons)
 - Mobile-responsive design improvements
 - Export budget summary as PDF
 
 ### Non-Goals (What We Will NOT Build)
 
-- **No investment advice** - We provide budgeting education only, not stock/investment recommendations
+- **No specific investment advice** - We provide budgeting education and general “where savings could go” (e.g. savings accounts, retirement accounts, index funds as concepts only). We do not recommend specific funds or products.
 - **No stock trading features** - This is not a brokerage or investment platform
 - **No real-time market data** - We focus on personal budgeting, not markets
 - **No user authentication for MVP** - Simplified single-session experience
@@ -98,19 +108,23 @@
 - [ ] Form validates that all inputs are non-negative numbers
 - [ ] Form submits successfully and shows loading state
 
-### AI Analysis
-- [ ] AI generates budget explanation within 10 seconds
+### AI Analysis (Gemini, free tier)
+- [ ] AI generates financial advice, saving tips, “where savings could go,” and a short saving plan within 10 seconds (when not rate-limited)
 - [ ] AI response is in plain English (no financial jargon)
-- [ ] AI provides at least 3 actionable insights
-- [ ] AI explains what the 50/30/20 rule is
-- [ ] AI handles edge cases (zero income, expenses exceeding income)
-- [ ] AI includes disclaimer that this is educational, not financial advice
+- [ ] AI provides at least 3 saving tips and 1 paragraph of financial advice
+- [ ] Output includes a short 3–6 month saving plan section that aligns with the user's selected primary goal
+- [ ] “Where savings could go” is educational only (no specific products)
+- [ ] Insights (and 50/30/20) reflected in UI; edge cases handled (zero income, overspending)
+- [ ] When Gemini is unavailable (for example, quota or network issues), the backend returns deterministic rule-based content with the same structure so the UI still shows advice, tips, and saving plan
+- [ ] Disclaimer present in AI output and in UI
 
 ### Results Display
-- [ ] Shows clear breakdown of each expense category
-- [ ] Shows percentage of income for each category
+- [ ] Shows Financial advice, Saving tips, Where savings could go, and Saving plan
+- [ ] Shows clear breakdown and percentage of income for each category
 - [ ] Displays visual progress bars for each category
-- [ ] Lists key insights in bullet point format
+- [ ] Includes an expense pie chart and 50/30/20 comparison visualization
+- [ ] Supports running at least one what-if scenario and clearly indicates when a scenario view is shown versus the original baseline
+- [ ] Lists key insights; includes disclaimer
 
 ### General
 - [ ] Application loads without errors
@@ -125,7 +139,7 @@
 ### Assumptions
 - Users have basic computer/internet literacy
 - Users will provide honest income/expense data
-- OpenAI API will remain available and affordable for our use case
+- Google Gemini API (free tier) will remain available for our use case
 - Users understand this is for educational purposes only
 - Users are inputting monthly (not weekly/yearly) figures
 
@@ -138,7 +152,7 @@
 | **Data** | No access to real financial data; user-provided only |
 | **Ethics** | Must include disclaimers that this is NOT financial advice |
 | **Platform** | Web-based only for MVP; no mobile app |
-| **API Limits** | OpenAI rate limits and costs must be managed |
+| **API Limits** | Gemini free-tier rate limits; hybrid AI + rule-based fallback when API is unavailable |
 
 ### Privacy & Ethics Considerations
 - No personal financial data is stored permanently (MVP)
@@ -176,11 +190,10 @@
 - API documentation
 
 **Gauge (AI/ML Lead)**
-- OpenAI API integration
-- Prompt engineering for budget analysis
-- AI response quality testing
-- Edge case handling
-- Fallback responses when API fails
+- Google Gemini API integration (free tier)
+- Prompt engineering for financial advice, saving tips, where savings could go, and saving plan
+- AI response quality and safety (no specific investment recommendations)
+- Edge case handling; fallback responses when API fails or is rate-limited
 
 **Allison (Documentation & QA)**
 - PRD maintenance
@@ -191,4 +204,4 @@
 
 ---
 
-*Last Updated: February 15, 2026*
+*Last Updated: February 24, 2026*

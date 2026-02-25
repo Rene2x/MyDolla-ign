@@ -9,14 +9,16 @@
 
 ## 1. Riskiest Assumption
 
-**The AI (OpenAI API) can generate accurate, helpful, and easy-to-understand budget explanations based on user-provided income and expense data.**
+**The AI (Google Gemini API, free tier) can generate accurate, helpful, and easy-to-understand budget explanations—including financial advice, saving tips, and educational “where savings could go” content—based on user-provided income and expense data.**
 
 We need to prove that:
 - The AI can interpret structured budget data correctly
 - The AI produces educational content that is understandable to our target users (students, young adults)
 - The AI response time is acceptable (< 10 seconds)
-- The AI doesn't provide harmful or incorrect financial information
-- The AI can explain budgeting concepts like the 50/30/20 rule in simple terms
+- The AI doesn't provide harmful or incorrect financial information (no specific investment recommendations)
+- The AI delivers structured output: financial advice, saving tips, and general “where savings could go” (e.g. savings accounts, retirement accounts, index funds as concepts only)
+- Calculations (totals, percentages) are done in code; AI provides narrative only
+- When the Gemini free tier is unavailable (for example due to quota or rate limits), the system still returns safe, structured content via a rule-based fallback instead of failing
 
 ---
 
@@ -24,12 +26,13 @@ We need to prove that:
 
 **Success means:** We can demonstrate a working prototype where:
 1. A user inputs income and expense data (via simple form or hardcoded test data)
-2. The data is sent to OpenAI API with a well-crafted prompt
-3. The AI returns a budget analysis that is:
-   - Accurate (correctly interprets the numbers and calculates percentages)
-   - Educational (explains concepts simply)
-   - Safe (includes appropriate disclaimers, no harmful advice)
-   - Fast (responds within 10 seconds)
+2. The data is sent to Google Gemini API (free tier) with a well-crafted prompt
+3. The backend computes all numbers (totals, percentages, breakdown); AI generates narrative only
+4. The AI returns structured content:
+   - **Financial advice** (1 paragraph, personalized)
+   - **Saving tips** (3–5 actionable bullets)
+   - **Where savings could go** (educational only: e.g. savings accounts, retirement accounts, index funds as concepts; no specific products)
+   - Accurate, educational, safe (disclaimers), and fast (< 10 seconds)
 
 ---
 
@@ -51,39 +54,15 @@ We need to prove that:
 }
 ```
 
-### Expected Output (AI Response)
-```
-Budget Analysis for Your Monthly Finances
+### Expected Output (Structured AI + Code)
 
-Income: $3,000/month
-Total Expenses: $2,500
-Remaining: $500
-
-Expense Breakdown:
-- Housing (Rent): $1,200 (40% of income) 
-  This is slightly above the recommended 30% guideline for housing costs.
-  
-- Food: $400 (13% of income)
-  This is reasonable for a monthly food budget.
-
-- Savings: $300 (10% of income)
-  You're saving, which is great! Consider increasing to 20% over time.
-
-[... additional categories ...]
-
-Key Insights:
-1. Your housing costs are your biggest expense at 40% of income.
-2. You're saving 10% - a good start, but aim for 20% if possible.
-3. You have $500 unallocated - consider adding this to savings.
-
-What is the 50/30/20 Rule?
-This budgeting guideline suggests:
-- 50% for NEEDS (rent, utilities, groceries, transportation)
-- 30% for WANTS (entertainment, dining out, hobbies)
-- 20% for SAVINGS (emergency fund, future goals)
-
-Disclaimer: This analysis is for educational purposes only and does not constitute financial advice.
-```
+- **Breakdown & insights:** Computed in code (totals, percentages, key insights).
+- **AI-generated sections:**
+  - **Financial advice:** One short paragraph (e.g. housing at 40%, saving 10%, one main lever or win).
+  - **Saving tips:** 3–5 bullets (e.g. use unallocated $500 for savings, auto-transfers, emergency fund).
+  - **Where savings could go:** One paragraph in general terms only (e.g. high-yield savings, 401(k)/IRA, index funds; “talk to a licensed advisor”).
+  - **Saving plan (3–6 months):** A high-level sequence of steps aligned with the user's selected goal (e.g. emergency fund, debt payoff, big purchase), based on code-calculated numbers.
+- **Disclaimer:** Included in AI output and in UI.
 
 ---
 
@@ -100,10 +79,12 @@ Disclaimer: This analysis is for educational purposes only and does not constitu
 | 2:30 - 3:00 | Q&A and next steps | All |
 
 ### What We'll Show:
-1. Simple web form OR command-line script accepting budget input
-2. Real-time API call to OpenAI
-3. Formatted response displayed to user
-4. At least 2 different test scenarios:
+1. Simple web form accepting budget input and primary goal selection
+2. Real-time budget analysis via Google Gemini (free tier) when available, with a deterministic rule-based fallback when the API is unavailable (for example, due to quota)
+3. Formatted response with Financial advice, Saving tips, Where savings could go, a 3–6 month saving plan, and expense breakdown (including 50/30/20 insights)
+4. Visual charts: expense pie chart and 50/30/20 rule comparison
+5. Simple “what-if” scenario tool that lets us adjust one expense category in plain language and re-run the analysis while preserving the original baseline
+6. At least 2 different test scenarios:
    - Student budget (low income, high rent percentage)
    - Working adult budget (moderate income, balanced expenses)
 
@@ -121,11 +102,11 @@ Disclaimer: This analysis is for educational purposes only and does not constitu
 - [ ] Lead the demo presentation
 
 ### Rene (Backend Lead) - SUPPORT
-- [ ] Set up OpenAI API integration (Python script)
+- [ ] Set up Google Gemini API integration (free tier, Python)
 - [ ] Create simple `/api/analyze` endpoint to receive budget data
-- [ ] Handle API errors gracefully (timeouts, rate limits)
+- [ ] Handle API errors gracefully (timeouts, rate limits); use rule-based fallback
 - [ ] Measure and log response times
-- [ ] Create fallback response if API fails
+- [ ] Ensure response includes financial_advice, saving_tips, where_savings_could_go
 
 ### Hugo (Frontend Lead) - SUPPORT
 - [ ] Create minimal budget input form (functional, not polished)
@@ -147,11 +128,12 @@ Disclaimer: This analysis is for educational purposes only and does not constitu
 
 | Criteria | Target | How to Verify |
 |----------|--------|---------------|
-| API Integration | Successfully calls OpenAI API | API returns 200 response |
+| API Integration | Successfully calls Gemini API (or fallback) | API returns 200 response |
 | Response Time | < 10 seconds | Measured with timestamps |
 | Accuracy | Correctly calculates percentages | Manual verification with calculator |
 | Readability | Non-technical person understands output | Test with 2 non-CS people |
 | Safety | Includes disclaimer, no harmful advice | Manual review of 5+ responses |
+| Saving Plan | Includes a short 3–6 month saving plan section aligned with the user's selected goal | Manual review |
 | Edge Cases | Handles 0 income, overspending scenarios | Test suite passes |
 | 50/30/20 Explanation | AI explains the rule clearly | Manual review |
 
@@ -171,9 +153,8 @@ Disclaimer: This analysis is for educational purposes only and does not constitu
 ### Fallback Options:
 
 **Option A: Use a different AI model**
-- Try Claude API or Gemini as alternatives
-- May have different pricing/performance tradeoffs
-- Gauge will research alternatives
+- We use Gemini (free tier) by default; if limits are hit, try Claude API or other free tiers
+- Gauge will research alternatives if needed
 
 **Option B: Rule-based analysis with limited AI**
 - Use AI only for generating tips/explanations
@@ -203,7 +184,7 @@ If the spike fails, the team will meet to:
 
 | Day | Tasks | Owner |
 |-----|-------|-------|
-| Day 1 (Mon) | Set up OpenAI API, initial prompt testing | Rene, Gauge |
+| Day 1 (Mon) | Set up Gemini API, initial prompt testing | Rene, Gauge |
 | Day 2 (Tue) | Refine prompts, test edge cases | Gauge |
 | Day 3 (Wed) | Build minimal UI, integrate end-to-end | Hugo, Rene |
 | Day 4 (Thu) | Testing, bug fixes, documentation | All |
@@ -213,8 +194,8 @@ If the spike fails, the team will meet to:
 
 ## Resources Needed
 
-- **OpenAI API key** - Sign up at platform.openai.com (Gauge to set up)
-- **Estimated API cost for spike:** $5-10
+- **Google Gemini API key (free tier)** - Get at https://aistudio.google.com/app/apikey (Gauge to set up)
+- **Estimated API cost for spike:** $0 (free tier; respect rate limits)
 - **Development environment:** 
   - Node.js 18+ (Hugo)
   - Python 3.10+ (Rene, Gauge)
@@ -246,20 +227,11 @@ BUDGET DATA:
 [user data here]
 ```
 
-### Prompt v3 (System + User Message)
-```
-System: You are a helpful budget educator for young adults. 
-Explain concepts simply. Never give investment advice.
-Always include a disclaimer.
+### Prompt v3 (System + User Message) — **Current approach**
+- **System:** Financial educator for young adults; no specific investment recommendations; explain options in general terms only; always include a disclaimer.
+- **User:** Budget data + request for three sections: Financial advice, Saving tips, Where savings could go (educational only).
 
-User: Please analyze my budget:
-Monthly income: $3000
-Rent: $1200
-Food: $400
-...
-```
-
-**Gauge will test all three approaches and document which works best.**
+**Gauge will refine prompts and document which works best.**
 
 ---
 
@@ -276,4 +248,4 @@ Space for team notes during the spike:
 
 ---
 
-*Last Updated: February 15, 2026*
+*Last Updated: February 24, 2026*

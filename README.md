@@ -20,15 +20,18 @@ Many people struggle to budget and save due to a lack of accessible, trustworthy
 ## MVP Features
 
 1. **Budget Input Form** - Categorized expense breakdown (income, rent, food, etc.)
-2. **AI-Generated Analysis** - Explanation of spending patterns and budgeting concepts
-3. **Budgeting Tips** - Personalized recommendations based on user's data (e.g., 50/30/20 rule)
+2. **AI-Generated Analysis** (Google Gemini, free tier):
+   - **Financial advice** - One paragraph personalized to the user's budget
+   - **Saving tips** - 3–5 actionable bullets (e.g. emergency fund, auto-transfers)
+   - **Where savings could go** - Educational overview (e.g. savings accounts, retirement accounts, index funds as concepts; no specific products)
+3. **Results** - Expense breakdown (computed in code), key insights, and disclaimer
 
 ## Tech Stack
 
-- **Frontend**: React.js with Tailwind CSS
+- **Frontend**: React.js with Tailwind CSS (Vite)
 - **Backend**: Python (Flask) with REST API
-- **AI**: OpenAI API for content generation
-- **Database**: SQLite (for MVP) / PostgreSQL (future)
+- **AI**: Google Gemini API (free tier) for narrative generation; calculations in code
+- **Database**: None for MVP (no persistence)
 
 ## Project Structure
 
@@ -60,23 +63,24 @@ MyDolla-Sign/
 ### Prerequisites
 - Node.js 18+ (for frontend)
 - Python 3.10+ (for backend)
-- OpenAI API key
+- [Google Gemini API key](https://aistudio.google.com/app/apikey) (free) — copy `backend/.env.example` to `backend/.env` and set `GEMINI_API_KEY`
 
-### Frontend
+### Backend (port 5000)
+```bash
+cd backend
+pip install -r requirements.txt
+cp .env.example .env   # then add your GEMINI_API_KEY
+python main.py
+```
+
+### Frontend (port 3000, proxies /api to backend)
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-### Backend
-```bash
-cd backend
-pip install -r requirements.txt
-python main.py
-```
-
-> **Note**: Detailed setup instructions will be added as development progresses.
+Open http://localhost:3000. If the Gemini API key is missing or the API fails, the app shows a rule-based fallback analysis.
 
 ## Documentation
 

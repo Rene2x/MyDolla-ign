@@ -18,6 +18,67 @@
 
 import { useState } from 'react'
 
+function GlossaryAIInput({ term, onExplain, isLoading, customPrompt }) {
+  const [showInput, setShowInput] = useState(false)
+  const [prompt, setPrompt] = useState('')
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (prompt.trim()) {
+      onExplain(term, prompt.trim())
+      setShowInput(false)
+      setPrompt('')
+    } else {
+      onExplain(term)
+    }
+  }
+
+  return (
+    <div className="space-y-2">
+      {!showInput ? (
+        <button
+          type="button"
+          onClick={() => setShowInput(true)}
+          disabled={isLoading}
+          className="text-xs inline-flex items-center px-3 py-1.5 rounded-full border border-emerald-500 text-emerald-700 hover:bg-emerald-50 disabled:opacity-60"
+        >
+          {isLoading ? 'Asking AI…' : 'Ask AI to explain'}
+        </button>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-2">
+          <input
+            type="text"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="e.g., Explain in simpler terms, How does this relate to budgeting?"
+            className="w-full px-3 py-1.5 text-xs border border-emerald-300 rounded-lg focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 outline-none text-gray-900 placeholder:text-gray-400"
+            autoFocus
+          />
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="px-3 py-1 text-xs bg-emerald-600 text-white rounded-md hover:bg-emerald-700 disabled:opacity-50"
+            >
+              {isLoading ? 'Asking…' : 'Ask'}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setShowInput(false)
+                setPrompt('')
+              }}
+              className="px-3 py-1 text-xs bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      )}
+    </div>
+  )
+}
+
 // Financial terms glossary data
 // TODO (Member 3): Review and expand this list
 const GLOSSARY_TERMS = [
@@ -76,6 +137,10 @@ const GLOSSARY_TERMS = [
 function InvestmentGlossary() {
   const [expandedTerm, setExpandedTerm] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [loadingTerm, setLoadingTerm] = useState(null)
+  const [aiExplanations, setAiExplanations] = useState({})
+  const [customPrompts, setCustomPrompts] = useState({})
+  const [error, setError] = useState(null)
 
   // Filter terms based on search query
   const filteredTerms = GLOSSARY_TERMS.filter(item =>
@@ -87,14 +152,49 @@ function InvestmentGlossary() {
     setExpandedTerm(expandedTerm === term ? null : term)
   }
 
+  const fetchAiExplanation = async (term, customPrompt = null) => {
+    try {
+      setLoadingTerm(term)
+      setError(null)
+      
+      // Build the request - if custom prompt, send it as part of the term explanation request
+      const requestBody = { term, complexity: 'beginner' }
+      if (customPrompt) {
+        requestBody.custom_prompt = customPrompt
+      }
+      
+      const response = await fetch('/api/glossary/explain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(requestBody),
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch AI explanation')
+      }
+      setAiExplanations((prev) => ({ ...prev, [term]: data.explanation }))
+      if (customPrompt) {
+        setCustomPrompts((prev) => ({ ...prev, [term]: customPrompt }))
+      }
+    } catch (err) {
+      console.error('Glossary AI error:', err)
+      setError(err.message)
+    } finally {
+      setLoadingTerm(null)
+    }
+  }
+
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 md:p-8" id="glossary">
       <h2 className="text-2xl font-bold text-gray-900 mb-2">
         Investment Literacy Glossary
       </h2>
-      <p className="text-gray-600 mb-6">
+      <p className="text-gray-600 mb-2">
         Learn essential financial terms in simple, easy-to-understand language.
       </p>
+      {error && (
+        <p className="text-sm text-red-600 mb-4">AI explanation error: {error}</p>
+      )}
 
       {/* Search Bar */}
       <div className="mb-6">
@@ -105,7 +205,7 @@ function InvestmentGlossary() {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full px-4 py-2 border border-gray-200 rounded-lg 
                      focus:border-green-500 focus:ring-1 focus:ring-green-200 
-                     transition-colors outline-none"
+                     transition-colors outline-none text-gray-900 placeholder:text-gray-400"
         />
       </div>
 
@@ -128,14 +228,37 @@ function InvestmentGlossary() {
             </button>
             
             {expandedTerm === item.term && (
-              <div className="px-4 pb-4 bg-gray-50">
-                <p className="text-gray-700 mb-3">
+              <div className="px-4 pb-4 bg-gray-50 space-y-3">
+                <p className="text-gray-700">
                   {item.definition}
                 </p>
                 <div className="bg-green-50 p-3 rounded-lg">
                   <p className="text-sm text-gray-600">
                     <strong>Example:</strong> {item.example}
                   </p>
+                </div>
+                <div className="pt-2 border-t border-gray-200 space-y-2">
+                  <GlossaryAIInput
+                    term={item.term}
+                    onExplain={fetchAiExplanation}
+                    isLoading={loadingTerm === item.term}
+                    customPrompt={customPrompts[item.term]}
+                  />
+                  {aiExplanations[item.term] && (
+                    <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3">
+                      <p className="text-xs font-semibold text-emerald-700 mb-1">
+                        AI explanation
+                        {customPrompts[item.term] && (
+                          <span className="text-emerald-600 font-normal ml-2">
+                            ({customPrompts[item.term]})
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-sm text-emerald-900 whitespace-pre-line">
+                        {aiExplanations[item.term]}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             )}

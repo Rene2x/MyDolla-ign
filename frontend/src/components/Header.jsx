@@ -1,41 +1,20 @@
-/**
- * ============================================
- * ASSIGNED TO: Member 1 (Frontend Lead)
- * 
- * Header component with navigation.
- * TODO:
- * 1. Add navigation links if needed
- * 2. Make it responsive for mobile
- * 3. Add any branding elements
- * ============================================
- */
-
 function Header() {
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
-      <div className="container mx-auto px-4 py-4 max-w-4xl">
+    <header className="bg-white/90 backdrop-blur-sm border-b border-slate-200/80 sticky top-0 z-10">
+      <div className="container mx-auto px-4 py-3 max-w-4xl">
         <div className="flex items-center justify-between">
-          {/* Logo / Brand */}
-          <div className="flex items-center space-x-2">
-            <span className="text-3xl font-bold text-green-600">$</span>
-            <h1 className="text-2xl font-bold text-green-600">
+          <a href="#" className="flex items-center gap-2 no-underline">
+            <span className="text-2xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
               My Dolla $ign
-            </h1>
-          </div>
-          
-          {/* Navigation - TODO: Add more links as needed */}
-          <nav className="hidden md:flex space-x-6">
-            <a 
-              href="#budget" 
-              className="text-gray-600 hover:text-green-600 transition-colors"
+            </span>
+            <span className="text-slate-400 text-lg">$</span>
+          </a>
+          <nav className="flex items-center gap-4">
+            <a
+              href="#budget"
+              className="text-slate-600 hover:text-emerald-600 font-medium text-sm transition-colors"
             >
               Budget Tool
-            </a>
-            <a 
-              href="#glossary" 
-              className="text-gray-600 hover:text-green-600 transition-colors"
-            >
-              Learn
             </a>
           </nav>
         </div>

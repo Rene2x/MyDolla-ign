@@ -1,23 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom styles for My Dolla $ign */
 body {
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background-color: #f9fafb;
+  font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+  background: radial-gradient(circle at top, #022c22 0%, #064e3b 35%, #020617 100%);
+  min-height: 100vh;
+  color: #e5e7eb;
 }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #f1f5f9;
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #22c55e;
+  background: linear-gradient(180deg, #34d399, #14b8a6);
   border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #10b981, #0d9488);
+}
+
+/* Focus ring for accessibility */
+input:focus-visible,
+button:focus-visible {
+  outline: 2px solid #10b981;
+  outline-offset: 2px;
 }

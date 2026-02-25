@@ -20,6 +20,7 @@ class BudgetInput:
     """Data class representing user budget input."""
     monthly_income: float
     expenses: Dict[str, float]
+    goal: str = "general"  # Options: "general", "emergency_fund", "debt_payoff", "big_purchase"
     
     @property
     def total_expenses(self) -> float:
@@ -100,6 +101,15 @@ def validate_budget_input(data: Dict[str, Any]) -> Dict[str, Any]:
             return {
                 'valid': False,
                 'message': f'Expense for {category} must be a number'
+            }
+    
+    # Validate goal if provided (optional field)
+    if 'goal' in data:
+        valid_goals = ["general", "emergency_fund", "debt_payoff", "big_purchase"]
+        if data['goal'] not in valid_goals:
+            return {
+                'valid': False,
+                'message': f'goal must be one of: {", ".join(valid_goals)}'
             }
     
     return {'valid': True}

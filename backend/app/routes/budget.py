@@ -59,7 +59,8 @@ def analyze_budget_endpoint():
         # Create BudgetInput object
         budget_input = BudgetInput(
             monthly_income=data.get('monthly_income', 0),
-            expenses=data.get('expenses', {})
+            expenses=data.get('expenses', {}),
+            goal=data.get('goal', 'general')
         )
         
         # Call AI service to analyze the budget
@@ -84,14 +85,36 @@ def demo_analysis():
     Useful for testing the frontend without AI API calls.
     """
     demo_result = {
-        'analysis': """Based on your monthly income of $3,000, here's your budget breakdown:
-
-You're spending 40% of your income on housing ($1,200), which is slightly above the recommended 30% guideline. Consider this the area with the most potential for savings if possible.
-
-Your food expenses at $400 (13%) are reasonable for a single person. Great job keeping this in check!
-
-You're saving $300 per month (10%), which is a good start! The general recommendation is to save at least 20% of your income. Consider gradually increasing this as you find ways to reduce other expenses.""",
-        
+        'analysis': 'Demo analysis text (see financial_advice, saving_tips, where_savings_could_go).',
+        'financial_advice': (
+            "Based on your monthly income of $3,000, housing is your largest expense at 40%—above the "
+            "common 30% guideline. You're saving 10%, which is a solid start. Consider gradually "
+            "increasing savings and exploring ways to reduce housing cost if possible."
+        ),
+        'saving_tips': [
+            'You have $500 unallocated—consider auto-transferring half to savings.',
+            'Aim to grow savings from 10% to 15% over the next few months.',
+            'Build an emergency fund of 3–6 months of expenses in a separate account.',
+            'Set up automatic transfers on payday so saving happens first.',
+        ],
+        'saving_plan': {
+            'months_1_3': [
+                'Increase savings from 10% to 12% of income',
+                'Set up automatic transfer of $100/month to emergency fund',
+                'Build emergency fund: aim for $1,000 first'
+            ],
+            'months_4_6': [
+                'Grow savings to 15% of income',
+                'Increase emergency fund to 2 months of expenses',
+                'Review and optimize housing costs if possible'
+            ]
+        },
+        'where_savings_could_go': (
+            "After an emergency fund, people often learn about high-yield savings accounts, "
+            "employer retirement accounts (401(k)), IRAs, and broad market index funds. "
+            "Talk to a licensed financial advisor for your situation."
+        ),
+        'goal': 'general',
         'breakdown': [
             {'category': 'Rent/Housing', 'amount': 1200, 'percentage': 40},
             {'category': 'Food/Groceries', 'amount': 400, 'percentage': 13.3},
@@ -101,13 +124,11 @@ You're saving $300 per month (10%), which is a good start! The general recommend
             {'category': 'Other', 'amount': 150, 'percentage': 5},
             {'category': 'Utilities', 'amount': 100, 'percentage': 3.3},
         ],
-        
         'insights': [
-            'Your housing costs are 40% of income - aim for 30% or less if possible',
-            'You\'re saving 10% - try to increase to 20% over time',
-            'Consider the 50/30/20 rule: 50% needs, 30% wants, 20% savings',
-            'Great job tracking your expenses! Awareness is the first step to better finances'
-        ]
+            'Your housing costs are 40% of income — aim for 30% or less if possible',
+            "You're saving 10% — try to increase to 20% over time",
+            '50/30/20 rule: 50% needs, 30% wants, 20% savings',
+            'Awareness is the first step to better finances',
+        ],
     }
-    
     return jsonify(demo_result), 200

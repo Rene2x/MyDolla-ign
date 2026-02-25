@@ -188,7 +188,7 @@ If the spike fails, the team will meet to:
 | Day 2 (Tue) | Refine prompts, test edge cases | Gauge |
 | Day 3 (Wed) | Build minimal UI, integrate end-to-end | Hugo, Rene |
 | Day 4 (Thu) | Testing, bug fixes, documentation | All |
-| Day 5 (Fri) | Demo prep, final testing, record backup video | All |
+| Day 5 (Fri) | Demo prep, final testing, | All |
 
 ---
 
@@ -217,7 +217,7 @@ Expenses: Rent $1200, Food $400, Transportation $150...
 You are a friendly budget educator. Analyze the following budget data.
 
 RULES:
-1. Use simple language (no jargon)
+1. Use simple language 
 2. Calculate percentages for each category
 3. Compare to the 50/30/20 rule
 4. Give 3-4 specific tips

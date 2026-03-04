@@ -1,0 +1,67 @@
+[
+  {
+    "id": "R_50_30_20",
+    "name": "50/30/20 Budget Guideline",
+    "description": "A common heuristic where roughly 50% of take-home pay goes to needs, 30% to wants, and 20% to savings or debt repayment.",
+    "category": "budget_allocation",
+    "reference": "Popular personal finance heuristic (e.g. Elizabeth Warren's rule of thumb).",
+    "parameters": {
+      "needs_target_pct": 50,
+      "wants_target_pct": 30,
+      "savings_target_pct": 20
+    }
+  },
+  {
+    "id": "R_SAVINGS_BENCHMARKS",
+    "name": "Savings Rate Benchmarks",
+    "description": "Saving at least 10% of income is a common starting target; 15–20% or more is often considered strong for long-term goals.",
+    "category": "savings",
+    "reference": "General savings benchmarks from personal finance education resources.",
+    "parameters": {
+      "minimum_savings_pct": 10,
+      "strong_savings_pct": 20
+    }
+  },
+  {
+    "id": "R_EMERGENCY_FUND",
+    "name": "Emergency Fund Guideline",
+    "description": "Building an emergency fund that can cover 3–6 months of essential expenses can provide a buffer against unexpected events.",
+    "category": "emergency_fund",
+    "reference": "Widely shared personal finance guidance.",
+    "parameters": {
+      "min_months": 3,
+      "max_months": 6
+    }
+  },
+  {
+    "id": "R_OVERSPENDING",
+    "name": "Overspending Detection",
+    "description": "When total expenses regularly exceed monthly income, it indicates overspending that may require reducing expenses or increasing income.",
+    "category": "overspending",
+    "reference": "Basic budgeting principle: expenses should not consistently exceed income.",
+    "parameters": {
+      "overspending_threshold_pct": 100
+    }
+  },
+  {
+    "id": "R_HOUSING_COST",
+    "name": "Housing Cost Guideline",
+    "description": "Many budgeting guidelines suggest keeping housing costs near or below about 30% of gross income, though this can vary by location and situation.",
+    "category": "housing_cost",
+    "reference": "Rule-of-thumb housing affordability guidelines.",
+    "parameters": {
+      "recommended_max_pct": 30
+    }
+  },
+  {
+    "id": "R_DEBT_TO_INCOME",
+    "name": "Debt-to-Income Consideration",
+    "description": "If a large portion of income goes toward debt payments, it can limit flexibility and increase financial stress; gradually reducing high-interest debt can help.",
+    "category": "debt_to_income",
+    "reference": "General debt-to-income considerations in personal finance education.",
+    "parameters": {
+      "attention_threshold_pct": 20
+    }
+  }
+]
+

@@ -3,26 +3,28 @@ import os
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
+# Google AI SDK (uses API key from Google AI Studio)
 try:
-    # New Google GenAI SDK (same style as existing ai_service)
-    from google import genai
-
+    import google.generativeai as genai
     GEMINI_AVAILABLE = True
-except ImportError:  # pragma: no cover - exercised indirectly in environments without SDK
+except ImportError:
     GEMINI_AVAILABLE = False
 
 from src.prompt_templates import build_tutor_prompt
 from src.rule_engine import RuleEngine, RuleLoadError
 
 
-DEFAULT_MODEL_NAME = "gemini-2.0-flash"
+DEFAULT_MODEL_NAME = "gemini-2.5-flash"
 
 
-def _get_gemini_client() -> "genai.Client":
+def _init_genai():
+    """Initialize Google AI with API key from environment."""
     api_key = os.getenv("GEMINI_API_KEY")
+    
     if not api_key:
         raise ValueError("GEMINI_API_KEY environment variable is not set")
-    return genai.Client(api_key=api_key)
+    
+    genai.configure(api_key=api_key)
 
 
 @dataclass
@@ -77,29 +79,24 @@ class TutorResult:
 
 class AITutor:
     """
-    Core AI tutor orchestrator.
+    Core AI tutor orchestrator using Google AI (Gemini).
 
     Responsibilities:
     - Validate user financial data.
     - Load and filter financial rules.
     - Build a grounded, strictly constrained prompt.
-    - Call the Gemini API with deterministic settings.
+    - Call Google AI Gemini with deterministic settings.
     - Parse and validate the JSON-only response.
-
-    This class is designed to be unit-testable:
-    - A custom `client` stub can be injected.
-    - A custom `rule_engine` can be injected.
     """
 
     def __init__(
         self,
-        client: Optional["genai.Client"] = None,
         model_name: str = DEFAULT_MODEL_NAME,
         rule_engine: Optional[RuleEngine] = None,
     ) -> None:
-        self._client = client
         self._model_name = model_name
         self._rule_engine = rule_engine or RuleEngine()
+        self._initialized = False
 
     @staticmethod
     def _has_minimum_data(user_data: Dict[str, Any]) -> bool:
@@ -107,13 +104,13 @@ class AITutor:
         expenses = user_data.get("expenses") or {}
         return isinstance(income, (int, float)) and bool(expenses)
 
-    def _ensure_client(self) -> "genai.Client":
-        if self._client is not None:
-            return self._client
-        if not GEMINI_AVAILABLE:
-            raise RuntimeError("Gemini SDK is not installed, and no client was provided")
-        self._client = _get_gemini_client()
-        return self._client
+    def _ensure_initialized(self):
+        """Initialize Google AI on first use."""
+        if not self._initialized:
+            if not GEMINI_AVAILABLE:
+                raise RuntimeError("Google AI SDK is not installed")
+            _init_genai()
+            self._initialized = True
 
     def generate_session(self, user_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -143,7 +140,6 @@ class AITutor:
             all_rules = self._rule_engine.as_dicts()
             relevant_rules = self._rule_engine.select_relevant_rules(user_data)
         except RuleLoadError as exc:
-            # Strict but safe: if rules cannot be loaded, refuse instead of guessing.
             return TutorResult(
                 status="Insufficient data",
                 explanation=f"Financial rules could not be loaded safely ({exc}); tutoring is disabled to avoid unsupported advice.",
@@ -160,7 +156,6 @@ class AITutor:
             ).to_dict()
 
         if not all_rules:
-            # No rule base means we cannot meet grounding requirements.
             return TutorResult(
                 status="Insufficient data",
                 explanation="No financial rules are available, so the tutor cannot provide grounded guidance.",
@@ -182,24 +177,20 @@ class AITutor:
             relevant_rules=relevant_rules,
         )
 
-        client = self._ensure_client()
-
-        # Deterministic generation configuration.
-        generation_config = {
-            "temperature": 0.0,
-            "top_p": 0.0,
-            "max_output_tokens": 512,
-            "response_mime_type": "application/json",
-        }
-
         try:
-            response = client.models.generate_content(
-                model=self._model_name,
-                contents=prompt,
-                config=generation_config,
+            self._ensure_initialized()
+            model = genai.GenerativeModel(
+                model_name=self._model_name,
+                generation_config=genai.GenerationConfig(
+                    temperature=0.0,
+                    top_p=0.1,
+                    max_output_tokens=4096,
+                    response_mime_type="application/json",
+                ),
             )
+
+            response = model.generate_content(prompt)
         except Exception as exc:
-            # Fail safe: avoid half-grounded outputs.
             return TutorResult(
                 status="Insufficient data",
                 explanation=f"The tutor backend could not reach the language model safely ({exc}).",
@@ -215,7 +206,7 @@ class AITutor:
                 used_rule_ids=[],
             ).to_dict()
 
-        raw_text = getattr(response, "text", None)
+        raw_text = response.text if hasattr(response, 'text') else None
         if not raw_text:
             return TutorResult(
                 status="Insufficient data",
@@ -235,7 +226,6 @@ class AITutor:
         try:
             parsed = json.loads(raw_text)
         except json.JSONDecodeError as exc:
-            # The model violated the JSON-only requirement; treat as failure.
             return TutorResult(
                 status="Insufficient data",
                 explanation=f"The language model did not return valid JSON ({exc}).",
@@ -254,7 +244,6 @@ class AITutor:
         try:
             result = TutorResult.from_dict(parsed)
         except Exception as exc:
-            # If the shape is wrong, refuse instead of guessing.
             return TutorResult(
                 status="Insufficient data",
                 explanation=f"The tutor output did not match the expected JSON structure ({exc}).",
@@ -271,4 +260,3 @@ class AITutor:
             ).to_dict()
 
         return result.to_dict()
-

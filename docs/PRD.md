@@ -5,7 +5,7 @@
 **Date:** February 15, 2026  
 **Authors:** Hugo, Rene, Gauge, Allison
 
----
+
 
 ## 1. Problem + Target Users
 
@@ -18,7 +18,7 @@
 
 **Why It Matters:** Financial literacy is a critical life skill that affects long-term well-being. By providing accessible budgeting education early, we can help users build healthy financial habits and avoid common pitfalls like overspending and poor savings practices.
 
----
+
 
 ## 2. Goal / Success Metrics
 
@@ -29,7 +29,7 @@
 | User Satisfaction | 4/5 average rating | In-app feedback form |
 | AI Response Quality | Accurate, helpful budget explanations | Manual review of outputs |
 
----
+
 
 ## 3. MVP User Stories
 
@@ -51,7 +51,7 @@
 
 9. **As a** user, **I want** to run simple “what-if” scenarios (for example, spending less on eating out) against my existing budget, **so that** I can see the impact of changes without re-entering everything.
 
----
+
 
 ## 4. MVP Scope vs. Non-Goals
 
@@ -96,7 +96,7 @@
 - **No payment processing** - Free educational tool
 - **No data persistence** - Budgets are not saved between sessions (MVP)
 
----
+
 
 ## 5. Acceptance Criteria
 
@@ -132,7 +132,7 @@
 - [ ] Works on desktop browsers (Chrome, Firefox, Safari)
 - [ ] Page is usable (not necessarily optimized) on mobile
 
----
+
 
 ## 6. Assumptions + Constraints
 
@@ -160,7 +160,7 @@
 - No collection of personally identifiable information
 - User data is only used for the current session analysis
 
----
+
 
 ## Appendix: Team Task Distribution
 
@@ -202,6 +202,6 @@
 - User testing coordination
 - Pitch deck preparation
 
----
+
 
 *Last Updated: February 24, 2026*

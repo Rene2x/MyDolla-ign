@@ -5,7 +5,7 @@
 **Timebox:** 3-5 days (Complete by February 20, 2026)  
 **Authors:** Hugo, Rene, Gauge, Allison
 
----
+
 
 ## 1. Riskiest Assumption
 
@@ -20,7 +20,7 @@ We need to prove that:
 - Calculations (totals, percentages) are done in code; AI provides narrative only
 - When the Gemini free tier is unavailable (for example due to quota or rate limits), the system still returns safe, structured content via a rule-based fallback instead of failing
 
----
+
 
 ## 2. Spike Goal
 
@@ -34,7 +34,7 @@ We need to prove that:
    - **Where savings could go** (educational only: e.g. savings accounts, retirement accounts, index funds as concepts; no specific products)
    - Accurate, educational, safe (disclaimers), and fast (< 10 seconds)
 
----
+
 
 ## 3. Inputs / Outputs
 
@@ -64,7 +64,7 @@ We need to prove that:
   - **Saving plan (3–6 months):** A high-level sequence of steps aligned with the user's selected goal (e.g. emergency fund, debt payoff, big purchase), based on code-calculated numbers.
 - **Disclaimer:** Included in AI output and in UI.
 
----
+
 
 ## 4. Demo Plan (2-3 minutes)
 
@@ -88,7 +88,7 @@ We need to prove that:
    - Student budget (low income, high rent percentage)
    - Working adult budget (moderate income, balanced expenses)
 
----
+
 
 ## 5. Owner(s) + Tasks
 
@@ -120,7 +120,7 @@ We need to prove that:
 - [ ] Note any issues or learnings for the PRD
 - [ ] Prepare spike results summary
 
----
+
 
 ## 6. Exit Criteria (Pass/Fail)
 
@@ -146,7 +146,7 @@ We need to prove that:
 - Cost per request exceeds $0.10
 - AI response is confusing or uses too much jargon
 
----
+
 
 ## 7. If It Fails... (Plan B)
 
@@ -178,7 +178,7 @@ If the spike fails, the team will meet to:
 3. Choose the best path forward within 1 day
 4. Adjust PRD and timeline accordingly
 
----
+
 
 ## Spike Timeline
 
@@ -190,7 +190,7 @@ If the spike fails, the team will meet to:
 | Day 4 (Thu) | Testing, bug fixes, documentation | All |
 | Day 5 (Fri) | Demo prep, final testing, | All |
 
----
+
 
 ## Resources Needed
 
@@ -201,7 +201,7 @@ If the spike fails, the team will meet to:
   - Python 3.10+ (Rene, Gauge)
 - **Test data:** Sample budgets (see examples above)
 
----
+
 
 ## Sample Prompts to Test
 
@@ -233,7 +233,7 @@ BUDGET DATA:
 
 **Gauge will refine prompts and document which works best.**
 
----
+
 
 ## Notes
 
@@ -246,6 +246,6 @@ Space for team notes during the spike:
 
 ```
 
----
+
 
 *Last Updated: February 24, 2026*

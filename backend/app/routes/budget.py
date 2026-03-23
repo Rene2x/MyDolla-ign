@@ -11,7 +11,7 @@ TODO:
 4. Add caching for repeated requests (optional)
 ============================================
 """
-
+import json
 from flask import Blueprint, request, jsonify
 from app.services.ai_service import analyze_budget
 from app.models.budget import BudgetInput, validate_budget_input
@@ -39,7 +39,10 @@ def analyze_budget_endpoint():
     """
     try:
         # Get JSON data from request
-        data = request.get_json()
+        data = request.form
+        data = data.to_dict()
+        data['expenses'] = json.loads(data['expenses'])
+        data['monthly_income'] = float(data['monthly_income'])
         
         if not data:
             return jsonify({

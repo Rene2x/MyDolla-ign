@@ -51,15 +51,15 @@ function BudgetForm({ onSubmit, isLoading }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden"
+      className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden"
       id="budget"
     >
-      <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-4">
-        <h2 className="text-xl font-bold text-white">Enter your budget</h2>
-        <p className="text-emerald-100 text-sm">Monthly, after taxes</p>
+      <div className="border-b border-slate-200 bg-slate-50 px-5 py-3">
+        <h2 className="text-lg font-semibold text-slate-900">Your monthly budget</h2>
+        <p className="text-slate-600 text-sm">After tax, in dollars</p>
       </div>
 
-      <div className="p-6 md:p-8">
+      <div className="p-5 md:p-6">
         <div className="mb-8">
           <label
             htmlFor="income"
@@ -79,9 +79,9 @@ function BudgetForm({ onSubmit, isLoading }) {
               placeholder="3000"
               min="0"
               step="0.01"
-              className="w-full pl-9 pr-4 py-3 text-lg border-2 border-slate-200 rounded-xl
-                         focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200
-                         transition-colors outline-none text-slate-900 placeholder:text-slate-400"
+              className="w-full pl-9 pr-4 py-2.5 text-base border border-slate-300 rounded-md
+                         focus:border-emerald-600 focus:ring-1 focus:ring-emerald-500/30
+                         outline-none text-slate-900 placeholder:text-slate-400"
               required
             />
           </div>
@@ -98,9 +98,9 @@ function BudgetForm({ onSubmit, isLoading }) {
             id="goal"
             value={goal}
             onChange={(e) => setGoal(e.target.value)}
-            className="w-full px-4 py-3 text-lg border-2 border-slate-200 rounded-xl
-                       focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200
-                       transition-colors outline-none bg-white text-slate-900"
+            className="w-full px-4 py-2.5 text-base border border-slate-300 rounded-md
+                       focus:border-emerald-600 focus:ring-1 focus:ring-emerald-500/30
+                       outline-none bg-white text-slate-900"
           >
             {GOAL_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -137,9 +137,9 @@ function BudgetForm({ onSubmit, isLoading }) {
                     placeholder={category.placeholder}
                     min="0"
                     step="0.01"
-                    className="w-full pl-7 pr-4 py-2.5 border border-slate-200 rounded-lg
-                               focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200
-                               transition-colors outline-none text-slate-900 placeholder:text-slate-400"
+                    className="w-full pl-7 pr-4 py-2 border border-slate-300 rounded-md
+                               focus:border-emerald-600 focus:ring-1 focus:ring-emerald-500/30
+                               outline-none text-slate-900 placeholder:text-slate-400"
                   />
                 </div>
               </div>
@@ -147,7 +147,7 @@ function BudgetForm({ onSubmit, isLoading }) {
           </div>
         </div>
 
-        <div className="bg-slate-50 rounded-xl p-4 mb-6 border border-slate-100">
+        <div className="bg-slate-50 rounded-md p-3 mb-5 border border-slate-200">
           <div className="flex justify-between text-sm text-slate-600 mb-2">
             <span>Total expenses</span>
             <span className="font-semibold tabular-nums">
@@ -169,13 +169,9 @@ function BudgetForm({ onSubmit, isLoading }) {
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full bg-gradient-to-r from-emerald-600 to-teal-600
-                     hover:from-emerald-700 hover:to-teal-700
-                     disabled:from-slate-300 disabled:to-slate-400
-                     text-white font-semibold py-3.5 px-6 rounded-xl
-                     transition-all duration-200 flex items-center justify-center gap-2
-                     shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/30
-                     disabled:shadow-none"
+          className="w-full bg-emerald-700 hover:bg-emerald-800 disabled:bg-slate-400
+                     text-white font-medium py-3 px-4 rounded-md
+                     flex items-center justify-center gap-2 transition-colors"
         >
           {isLoading ? (
             <>
@@ -183,6 +179,7 @@ function BudgetForm({ onSubmit, isLoading }) {
                 className="animate-spin h-5 w-5 text-white"
                 fill="none"
                 viewBox="0 0 24 24"
+                aria-hidden
               >
                 <circle
                   className="opacity-25"
@@ -198,10 +195,10 @@ function BudgetForm({ onSubmit, isLoading }) {
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 />
               </svg>
-              Analyzing…
+              Analyze
             </>
           ) : (
-            'Analyze my budget'
+            'Analyze'
           )}
         </button>
       </div>

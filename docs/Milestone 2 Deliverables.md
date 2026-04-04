@@ -184,11 +184,11 @@ Be ready to answer:
 
 # 8. Submission Checklist
 
-- [ ] Browser MVP works end-to-end
-- [ ] Explanation, quiz, and tip are visible in the UI
-- [ ] Grounding and disclaimer behavior are preserved
-- [ ] One fallback or refusal case is demo-ready
-- [ ] README is updated and accurate
-- [ ] `.env.example` is present
-- [ ] `/docs/milestone2_demo.md` is present
-- [ ] Demo video is submitted or linked
+- [x] Browser MVP works end-to-end
+- [x] Explanation, quiz, and tip are visible in the UI
+- [x] Grounding and disclaimer behavior are preserved
+- [x] One fallback or refusal case is demo-ready
+- [x] README is updated and accurate
+- [x] `.env.example` is present
+- [x] `/docs/milestone2_demo.md` is present
+- [ ] Demo video is submitted or linked (add `docs/milestone2_demo.mp4` or URL in `milestone2_demo.md`)

@@ -5,7 +5,10 @@
 flask>=3.0.0
 flask-cors>=4.0.0
 
-# Google Cloud Vertex AI (uses your $300 credits)
+# Google AI Studio / Gemini API key (same stack as `python demo.py`)
+google-generativeai>=0.8.0
+
+# Google Cloud Vertex AI (optional; used if GOOGLE_CLOUD_PROJECT is set and Studio key is not)
 google-cloud-aiplatform>=1.38.0
 
 # Environment variables

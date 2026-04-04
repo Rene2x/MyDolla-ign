@@ -14,11 +14,14 @@ This script demonstrates the AI tutor by:
 import json
 import os
 import sys
+from pathlib import Path
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+_BACKEND_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(_BACKEND_DIR))
 
 from dotenv import load_dotenv
-load_dotenv()
+
+load_dotenv(_BACKEND_DIR / ".env")
 
 from src.ai_tutor import AITutor
 

@@ -1,12 +1,16 @@
 import os
 import json
+from pathlib import Path
 from flask import Flask, render_template, request
 from flask_cors import CORS
 from dotenv import load_dotenv
+
+# Load backend/.env no matter which directory you run `python main.py` from
+_BACKEND_DIR = Path(__file__).resolve().parent
+load_dotenv(_BACKEND_DIR / ".env")
+
 from app.services.ai_service import analyze_budget
 from app.models.budget import BudgetInput, validate_budget_input
-
-load_dotenv()
 
 from app.routes.budget import budget_bp
 from app.routes.glossary import glossary_bp
@@ -86,7 +90,27 @@ def create_app():
 
     @app.route('/api/health')
     def health_check():
-        return {'status': 'healthy', 'service': 'My Dolla $ign API'}
+        from app.services.ai_service import GENAI_STUDIO_AVAILABLE, VERTEX_AVAILABLE
+
+        key_set = bool(os.getenv("GEMINI_API_KEY", "").strip())
+        project_set = bool(os.getenv("GOOGLE_CLOUD_PROJECT", "").strip())
+        return {
+            "status": "healthy",
+            "service": "My Dolla $ign API",
+            "ai": {
+                "google_generativeai_installed": GENAI_STUDIO_AVAILABLE,
+                "vertex_sdk_installed": VERTEX_AVAILABLE,
+                "gemini_api_key_set": key_set,
+                "google_cloud_project_set": project_set,
+                "hint": (
+                    "Install: pip install -r requirements.txt; set GEMINI_API_KEY in backend/.env"
+                    if not GENAI_STUDIO_AVAILABLE
+                    else "Set GEMINI_API_KEY in backend/.env"
+                    if not key_set
+                    else "OK for Google AI Studio"
+                ),
+            },
+        }
 
     return app
 
@@ -94,12 +118,13 @@ def create_app():
 app = create_app()
 
 if __name__ == '__main__':
-    port = int(os.getenv('PORT', 5000))
+    port = int(os.getenv('PORT', 5001))
     debug = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
 
     print(f"Starting My Dolla $ign API server on port {port}")
     print(f"Health check: http://localhost:{port}/api/health")
     print(f"Budget analysis: POST http://localhost:{port}/api/analyze")
+    print(f"Quiz grading: POST http://localhost:{port}/api/grade-quiz")
 
     app.run(
         host=os.getenv('HOST', '0.0.0.0'),

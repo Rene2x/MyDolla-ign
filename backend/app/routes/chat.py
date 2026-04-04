@@ -21,9 +21,9 @@ def chat():
       }
   }
   """
-  from app.services.ai_service import get_gemini_client, GEMINI_AVAILABLE
+  from app.services.ai_service import get_gemini_client, GENAI_STUDIO_AVAILABLE
 
-  if not GEMINI_AVAILABLE:
+  if not GENAI_STUDIO_AVAILABLE:
       return jsonify({
           'error': 'unavailable',
           'message': 'Chatbot is currently unavailable.'

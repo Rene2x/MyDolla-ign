@@ -5,6 +5,17 @@ Version: 1.0
 Date: February 15, 2026  
 Authors: Hugo, Rene, Gauge, Allison
 
+## 0. MVP implementation path (Milestone 2)
+
+The **live browser MVP** uses a single orchestration module: **`backend/app/services/ai_service.py`**.
+
+- The user prompt is built in `build_budget_prompt()`. The model is called in this order: **Google AI Studio** (`GEMINI_API_KEY` + `google-generativeai`, same stack as `python demo.py`), else **Vertex AI** if `GOOGLE_CLOUD_PROJECT` is set, else **`generate_fallback_response()`**.
+- After analyze, the UI posts the learner’s quiz answer to **`POST /api/grade-quiz`**, which uses `grade_quiz_answer()` in the same module to return a **CORRECT / PARTIALLY CORRECT / INCORRECT** verdict and short feedback (with the same credential order and a small deterministic fallback if the model is unreachable).
+- Required narrative sections include **FINANCIAL ADVICE**, **QUIZ QUESTION**, **QUIZ ANSWER KEY**, and **GROUNDED TIP** (tip must name a rule from `docs/financial_rules.md`).
+- Parsed output is merged with **code-computed** breakdown and insights. The UI shows `output_source`: `google_ai_studio`, `vertex_ai`, or `fallback_deterministic`.
+
+The older `backend/src/prompt_templates.py` / `ai_tutor.py` paths remain as earlier coursework artifacts; Milestone 2 grading should reference `app/services/ai_service.py`, `POST /api/analyze`, and `POST /api/grade-quiz`.
+
 ## 1. Overview
 
 This document describes how we design prompts for the AI Budget Tutor. The goal is to make sure all AI outputs are:

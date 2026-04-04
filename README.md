@@ -15,21 +15,18 @@ Many people struggle to budget and save due to a lack of accessible, trustworthy
 | Gauge | AI/ML Lead | AI integration, prompt engineering, budget analysis |
 | Allison | Documentation and QA | PRD, testing, deployment, documentation |
 
-## MVP Features
+## MVP Features (Milestone 2)
 
-1. Budget Input Form: Categorized expense breakdown (income, rent, food, etc.)
-2. AI Generated Analysis (Google Gemini):
-   - Financial advice personalized to the user budget
-   - Saving tips with actionable suggestions
-   - Quiz questions to test understanding
-   - Personalized tips based on financial rules
-3. Results: Expense breakdown, key insights, and disclaimer
+1. **Budget form:** Monthly income, categorized expenses, goal.
+2. **Analyze:** Single API path `POST /api/analyze` (JSON).
+3. **Results in the UI:** Grounded explanation (uses your numbers), **one** quiz question, **one** rule-grounded tip (see `docs/financial_rules.md`), optional category breakdown, disclaimer, and **output source** (Vertex AI vs deterministic fallback).
+4. **Safe fallback:** If Vertex AI is unavailable or misconfigured, the backend returns a full structured response from deterministic logic so the demo still works.
 
 ## Tech Stack
 
 - Frontend: React.js with Tailwind CSS (Vite)
 - Backend: Python (Flask) with REST API
-- AI: Google Gemini API for budget analysis and tutoring
+- AI: Google Vertex AI (Gemini) for narrative sections when configured; otherwise rule-based fallback in code
 - Database: None for MVP (no persistence)
 
 ## Project Structure
@@ -67,17 +64,21 @@ MyDolla-Sign/
 ## How to Run
 
 ### Prerequisites
-- Python 3.10 or higher (for backend)
-- Node.js 18 or higher (for frontend)
-- Google Gemini API key from https://aistudio.google.com/apikey
+- Python 3.10+ (backend)
+- Node.js 18+ (frontend)
+- Optional: Google Cloud project with Vertex AI enabled and application default credentials (or your environment’s auth method) for live Gemini calls
 
-### Backend Setup
+### Backend setup
 ```bash
 cd backend
-python -m venv venv
-source venv/bin/activate
+python3 -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env   # then add your GEMINI_API_KEY
+cp .env.example .env
+# For live AI (same as terminal demo): set GEMINI_API_KEY from https://aistudio.google.com/apikey
+# Optional: GEMINI_MODEL=gemini-2.5-flash
+# Alternative: GOOGLE_CLOUD_PROJECT + Vertex AI auth
+# Without either: deterministic fallback still works for demos.
 ```
 
 ### Run the AI Tutor Demo (Terminal)
@@ -94,21 +95,27 @@ This interactive demo will:
 4. Give you personalized tips
 5. Let you ask the AI any questions
 
-### Run the Backend Server
+### Run the backend API
 ```bash
 cd backend
 source venv/bin/activate
 python main.py
 ```
 
-### Run the Frontend
+Default: `http://127.0.0.1:5001` — `POST /api/analyze` expects JSON `{ "monthly_income", "expenses", "goal" }`.
+
+### Run the frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-Open http://localhost:3000 in your browser.
+Open **http://localhost:3000**. The dev server proxies `/api` to the backend (see `frontend/vite.config.js`).
+
+### Milestone 2 demo checklist
+- Step-by-step: [docs/milestone2_demo.md](docs/milestone2_demo.md)
+- Record or link your 4–7 minute video per that doc (`docs/milestone2_demo.mp4` or URL in the same file).
 
 ## Documentation
 
@@ -118,6 +125,8 @@ Open http://localhost:3000 in your browser.
 - [Spike Results and AI Integration](docs/spike_results.md)
 - [Evaluation Test Cases](docs/evaluation_test_cases.md)
 - [Financial Rules](docs/financial_rules.md)
+- [Milestone 2 demo guide](docs/milestone2_demo.md)
+- [Milestone 2 team handoff (three tasks)](docs/team_tasks_milestone2.md)
 
 ## Milestone 1 Deliverables
 

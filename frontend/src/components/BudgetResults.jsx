@@ -1,337 +1,312 @@
-import { useState } from 'react'
-import ExpensePieChart from './ExpensePieChart'
-import BudgetComparison from './BudgetComparison'
+// Teammate task (UI polish): refine spacing, type scale, and mobile layout for this flow
+// (quiz, verdict, answer key, explanation). Keep accessibility for the textarea and buttons.
 
-function WhatIfInput({ onWhatIf }) {
-  const [input, setInput] = useState('')
-  const [examples] = useState([
-    'Save 5% more',
-    'Cut entertainment by $50',
-    'Lower housing by $200',
-    'Increase savings by $100',
-  ])
+import { useState, useEffect } from 'react'
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (input.trim()) {
-      onWhatIf(input.trim())
-      setInput('')
-    }
+function verdictStyles(verdict) {
+  const v = (verdict || '').toUpperCase()
+  if (v === 'CORRECT') {
+    return 'border-emerald-200 bg-emerald-50/80'
   }
-
-  return (
-    <div className="bg-slate-50 rounded-xl p-4 border border-slate-200">
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="e.g., Save 5% more, Cut entertainment by $50..."
-            className="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:border-emerald-500 focus:ring-1 focus:ring-emerald-200 outline-none text-slate-900 placeholder:text-slate-400"
-          />
-          <button
-            type="submit"
-            disabled={!input.trim()}
-            className="px-4 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Calculate
-          </button>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <span className="text-xs text-slate-500">Quick examples:</span>
-          {examples.map((ex, i) => (
-            <button
-              key={i}
-              type="button"
-              onClick={() => {
-                setInput(ex)
-                onWhatIf(ex)
-                setInput('')
-              }}
-              className="px-2 py-1 text-xs bg-white border border-slate-300 rounded-md hover:bg-slate-50 text-slate-700"
-            >
-              {ex}
-            </button>
-          ))}
-        </div>
-      </form>
-    </div>
-  )
+  if (v === 'INCORRECT') {
+    return 'border-red-200 bg-red-50/80'
+  }
+  return 'border-amber-200 bg-amber-50/70'
 }
 
-function BudgetResults({ results, monthlyIncome, scenarioLabel, hasBaseline, onWhatIf }) {
-  if (!results) return null
+function BudgetResults({ results, monthlyIncome }) {
+  const [phase, setPhase] = useState('quiz')
+  const [answerDraft, setAnswerDraft] = useState('')
+  const [gradeResult, setGradeResult] = useState(null)
+  const [gradeError, setGradeError] = useState(null)
+  const [isGrading, setIsGrading] = useState(false)
 
-  const [activeTab, setActiveTab] = useState('overview')
+  useEffect(() => {
+    setPhase('quiz')
+    setAnswerDraft('')
+    setGradeResult(null)
+    setGradeError(null)
+    setIsGrading(false)
+  }, [results])
+
+  if (!results) return null
 
   const {
     financial_advice,
-    saving_tips,
-    saving_plan,
-    where_savings_could_go,
-    breakdown,
-    insights,
     analysis,
+    quiz_question,
+    quiz_answer_key,
+    grounded_tip,
+    grounded_rule_citation,
+    breakdown,
     goal,
+    output_source,
   } = results
 
-  // Use provided monthlyIncome or calculate from breakdown
-  const income = monthlyIncome || (breakdown && breakdown.length > 0 && breakdown[0].percentage > 0
-    ? (breakdown[0].amount / breakdown[0].percentage) * 100
-    : 0)
+  const explanation = financial_advice || analysis
+  const income = monthlyIncome || 0
 
   const goalLabels = {
     general: 'General financial wellness',
     emergency_fund: 'Build emergency fund',
     debt_payoff: 'Pay down debt',
-    big_purchase: 'Save for big purchase',
+    big_purchase: 'Save for a big purchase',
+  }
+
+  const sourceLabel =
+    output_source === 'google_ai_studio'
+      ? 'AI (Google AI Studio)'
+      : output_source === 'vertex_ai'
+        ? 'AI (Vertex Gemini)'
+        : output_source === 'fallback_deterministic'
+          ? 'Deterministic fallback (no AI call)'
+          : output_source === 'demo_static'
+            ? 'Static demo payload'
+            : output_source || 'Unknown'
+
+  const answerKey =
+    quiz_answer_key ||
+    'Strong answers tie back to your actual income and category amounts and to the rules in financial_rules.md.'
+
+  const stepLine =
+    phase === 'quiz'
+      ? 'Step 1 of 3 — answer the quiz. Your response is sent to the grader before you see the full write-up.'
+      : phase === 'feedback'
+        ? 'Step 2 of 3 — review your grade and the answer key'
+        : 'Step 3 of 3 — grounded explanation and tip'
+
+  const submitForGrading = async () => {
+    const trimmed = answerDraft.trim()
+    if (!trimmed || !quiz_question) return
+    setGradeError(null)
+    setIsGrading(true)
+    try {
+      const response = await fetch('/api/grade-quiz', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          quiz_question: quiz_question,
+          quiz_answer_key: quiz_answer_key || '',
+          user_answer: trimmed,
+        }),
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) {
+        throw new Error(data.message || 'Grading request failed')
+      }
+      setGradeResult({
+        verdict: data.verdict || 'PARTIALLY CORRECT',
+        feedback: data.feedback || '',
+        output_source: data.output_source,
+      })
+      setPhase('feedback')
+    } catch (err) {
+      setGradeError(err.message || 'Something went wrong while grading.')
+    } finally {
+      setIsGrading(false)
+    }
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
-      <div className="bg-gradient-to-r from-emerald-600 to-teal-600 px-6 py-5">
-        <h2 className="text-2xl font-bold text-white">
-          Your Budget Analysis
-        </h2>
-        <p className="text-emerald-100 text-sm mt-1">
-          Personalized for your numbers · Education only, not advice
+    <div className="bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden">
+      <div className="border-b border-slate-200 bg-slate-50 px-5 py-4">
+        <h2 className="text-lg font-semibold text-slate-900">Analysis results</h2>
+        <p className="text-sm text-slate-600 mt-1">
+          Output source: <span className="font-medium text-slate-800">{sourceLabel}</span>
+          {goal && (
+            <span className="text-slate-500">
+              {' '}
+              · Goal: {goalLabels[goal] || goal}
+            </span>
+          )}
         </p>
-        {goal && (
-          <div className="mt-3 inline-block px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full">
-            <span className="text-white text-xs font-medium">
-              Goal: {goalLabels[goal] || goal}
-            </span>
-          </div>
-        )}
-        {scenarioLabel && (
-          <div className="mt-2">
-            <span className="inline-flex items-center px-3 py-1 rounded-full bg-emerald-900/60 text-emerald-100 text-xs">
-              {scenarioLabel}
-            </span>
-          </div>
-        )}
+        <p className="text-xs text-slate-500 mt-2">{stepLine}</p>
       </div>
 
-      <div className="p-6 md:p-8 space-y-8">
-        {/* What-if calculator */}
-        {hasBaseline && onWhatIf && (
-          <section className="mb-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-emerald-500 mb-2">
-              What-if calculator
-            </h3>
-            <WhatIfInput onWhatIf={onWhatIf} />
-          </section>
-        )}
-
-        {/* Visualizations Tabs */}
-        {breakdown && breakdown.length > 0 && (
-          <section>
-            <div className="flex gap-2 mb-4 border-b border-slate-200">
-              <button
-                onClick={() => setActiveTab('overview')}
-                className={`px-4 py-2 text-sm font-medium transition-colors ${
-                  activeTab === 'overview'
-                    ? 'text-emerald-600 border-b-2 border-emerald-600'
-                    : 'text-slate-500 hover:text-slate-700'
-                }`}
-              >
-                Overview
-              </button>
-              <button
-                onClick={() => setActiveTab('chart')}
-                className={`px-4 py-2 text-sm font-medium transition-colors ${
-                  activeTab === 'chart'
-                    ? 'text-emerald-600 border-b-2 border-emerald-600'
-                    : 'text-slate-500 hover:text-slate-700'
-                }`}
-              >
-                Pie Chart
-              </button>
-              <button
-                onClick={() => setActiveTab('comparison')}
-                className={`px-4 py-2 text-sm font-medium transition-colors ${
-                  activeTab === 'comparison'
-                    ? 'text-emerald-600 border-b-2 border-emerald-600'
-                    : 'text-slate-500 hover:text-slate-700'
-                }`}
-              >
-                50/30/20 Rule
-              </button>
-            </div>
-
-            {activeTab === 'overview' && (
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-100">
-                  <ExpensePieChart breakdown={breakdown} monthlyIncome={income} />
-                </div>
-                <div className="bg-white rounded-xl p-6 border border-slate-200">
-                  <BudgetComparison breakdown={breakdown} monthlyIncome={income} />
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'chart' && (
-              <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-8 border border-emerald-100">
-                <ExpensePieChart breakdown={breakdown} monthlyIncome={income} />
-              </div>
-            )}
-
-            {activeTab === 'comparison' && (
-              <div className="bg-white rounded-xl p-6 border border-slate-200">
-                <BudgetComparison breakdown={breakdown} monthlyIncome={income} />
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* Financial Advice */}
-        {(financial_advice || analysis) && (
-          <section>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-emerald-600 mb-2">
-              Financial advice
-            </h3>
-            <div className="bg-emerald-50/80 border border-emerald-100 rounded-xl p-4 text-slate-700 leading-relaxed">
-              {financial_advice || analysis}
-            </div>
-          </section>
-        )}
-
-        {/* Saving Tips */}
-        {saving_tips && saving_tips.length > 0 && (
-          <section>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-emerald-600 mb-2">
-              Saving tips
+      <div className="p-5 md:p-6 space-y-6">
+        {breakdown && breakdown.length > 0 && income > 0 && (
+          <section aria-labelledby="breakdown-heading">
+            <h3
+              id="breakdown-heading"
+              className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3"
+            >
+              Your categories (from your inputs)
             </h3>
             <ul className="space-y-2">
-              {saving_tips.map((tip, i) => (
-                <li
-                  key={i}
-                  className="flex items-start gap-3 text-slate-700"
-                >
-                  <span className="flex-shrink-0 w-6 h-6 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-semibold">
-                    {i + 1}
-                  </span>
-                  <span>{tip}</span>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {/* Saving Plan */}
-        {saving_plan && (saving_plan.months_1_3 || saving_plan.months_4_6) && (
-          <section>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-emerald-600 mb-3">
-              Your saving plan (3-6 months)
-            </h3>
-            <div className="space-y-4">
-              {saving_plan.months_1_3 && saving_plan.months_1_3.length > 0 && (
-                <div className="bg-emerald-50/50 border border-emerald-200 rounded-xl p-4">
-                  <h4 className="text-sm font-semibold text-emerald-700 mb-2">
-                    Months 1-3
-                  </h4>
-                  <ul className="space-y-1.5">
-                    {saving_plan.months_1_3.map((item, i) => (
-                      <li
-                        key={i}
-                        className="flex items-start gap-2 text-slate-700 text-sm"
-                      >
-                        <span className="text-emerald-600 mt-0.5">•</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {saving_plan.months_4_6 && saving_plan.months_4_6.length > 0 && (
-                <div className="bg-teal-50/50 border border-teal-200 rounded-xl p-4">
-                  <h4 className="text-sm font-semibold text-teal-700 mb-2">
-                    Months 4-6
-                  </h4>
-                  <ul className="space-y-1.5">
-                    {saving_plan.months_4_6.map((item, i) => (
-                      <li
-                        key={i}
-                        className="flex items-start gap-2 text-slate-700 text-sm"
-                      >
-                        <span className="text-teal-600 mt-0.5">•</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          </section>
-        )}
-
-        {/* Where savings could go */}
-        {where_savings_could_go && (
-          <section>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-emerald-600 mb-2">
-              Where savings could go
-            </h3>
-            <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-600 text-sm leading-relaxed">
-              {where_savings_could_go}
-            </div>
-          </section>
-        )}
-
-        {/* Expense Breakdown */}
-        {breakdown && breakdown.length > 0 && (
-          <section>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-3">
-              Expense breakdown
-            </h3>
-            <div className="space-y-4">
               {breakdown.map((item, i) => (
-                <div key={i}>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="font-medium text-slate-700">
-                      {item.category}
-                    </span>
-                    <span className="text-slate-600 tabular-nums">
-                      ${item.amount.toFixed(2)} ({item.percentage.toFixed(1)}%)
-                    </span>
-                  </div>
-                  <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-emerald-400 to-teal-500 rounded-full transition-all duration-500"
-                      style={{ width: `${Math.min(item.percentage, 100)}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Key Insights */}
-        {insights && insights.length > 0 && (
-          <section>
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-2">
-              Key insights
-            </h3>
-            <ul className="flex flex-wrap gap-2">
-              {insights.map((insight, i) => (
                 <li
                   key={i}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 text-slate-700 text-sm"
+                  className="flex justify-between text-sm text-slate-700 border-b border-slate-100 pb-2 last:border-0"
                 >
-                  <span className="text-emerald-500">•</span>
-                  {insight}
+                  <span>{item.category}</span>
+                  <span className="tabular-nums text-slate-600">
+                    ${Number(item.amount).toFixed(2)} ({Number(item.percentage).toFixed(1)}%)
+                  </span>
                 </li>
               ))}
             </ul>
           </section>
         )}
 
-        {/* Disclaimer */}
-        <p className="text-xs text-slate-400 italic border-t border-slate-100 pt-4">
-          This analysis is generated by AI for educational purposes only and does
-          not constitute financial advice. Consult a qualified advisor for your
-          situation.
+        {phase === 'quiz' && quiz_question && (
+          <section aria-labelledby="quiz-heading" className="space-y-4">
+            <h3
+              id="quiz-heading"
+              className="text-xs font-semibold uppercase tracking-wide text-slate-500"
+            >
+              Quiz
+            </h3>
+            <p className="text-slate-800 leading-relaxed border-l-4 border-emerald-600 pl-4 py-1">
+              {quiz_question}
+            </p>
+            <div>
+              <label htmlFor="quiz-answer" className="block text-sm font-medium text-slate-700 mb-1">
+                Your answer
+              </label>
+              <textarea
+                id="quiz-answer"
+                value={answerDraft}
+                onChange={(e) => setAnswerDraft(e.target.value)}
+                rows={4}
+                disabled={isGrading}
+                placeholder="Write a short answer. It will be graded before you see the tutor explanation and tip."
+                className="w-full border border-slate-300 rounded-md px-3 py-2 text-sm text-slate-900
+                           focus:border-emerald-600 focus:ring-1 focus:ring-emerald-500/30 outline-none resize-y
+                           disabled:bg-slate-100 disabled:text-slate-500"
+              />
+            </div>
+            {gradeError && (
+              <p className="text-sm text-red-700" role="alert">
+                {gradeError}
+              </p>
+            )}
+            <button
+              type="button"
+              disabled={!answerDraft.trim() || isGrading}
+              onClick={submitForGrading}
+              className="w-full sm:w-auto bg-emerald-700 hover:bg-emerald-800 disabled:bg-slate-400 disabled:cursor-not-allowed
+                         text-white font-medium py-2.5 px-5 rounded-md transition-colors"
+            >
+              {isGrading ? 'Grading…' : 'Submit for grading'}
+            </button>
+          </section>
+        )}
+
+        {phase === 'feedback' && gradeResult && (
+          <>
+            <section aria-labelledby="verdict-heading" className="space-y-3">
+              <h3
+                id="verdict-heading"
+                className="text-xs font-semibold uppercase tracking-wide text-slate-500"
+              >
+                Grader result
+              </h3>
+              <div
+                className={`rounded-lg border p-4 ${verdictStyles(gradeResult.verdict)}`}
+              >
+                <p className="text-sm font-semibold text-slate-900">
+                  Verdict: {gradeResult.verdict}
+                </p>
+                {gradeResult.output_source && (
+                  <p className="text-xs text-slate-600 mt-1">
+                    Grader source: {gradeResult.output_source}
+                  </p>
+                )}
+                <p className="text-sm text-slate-800 mt-3 leading-relaxed whitespace-pre-wrap">
+                  {gradeResult.feedback}
+                </p>
+              </div>
+            </section>
+
+            <section aria-labelledby="your-answer-heading">
+              <h3
+                id="your-answer-heading"
+                className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"
+              >
+                What you submitted
+              </h3>
+              <p className="text-slate-800 border border-slate-200 rounded-lg p-4 bg-slate-50/80 whitespace-pre-wrap">
+                {answerDraft.trim()}
+              </p>
+            </section>
+
+            <section aria-labelledby="answer-key-heading">
+              <h3
+                id="answer-key-heading"
+                className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"
+              >
+                Answer key (core ideas)
+              </h3>
+              <p className="text-slate-800 leading-relaxed border border-amber-100 rounded-lg p-4 bg-amber-50/50">
+                {answerKey}
+              </p>
+            </section>
+
+            <button
+              type="button"
+              onClick={() => setPhase('revealed')}
+              className="w-full sm:w-auto bg-slate-800 hover:bg-slate-900 text-white font-medium py-2.5 px-5 rounded-md transition-colors"
+            >
+              Continue to explanation and tip
+            </button>
+          </>
+        )}
+
+        {phase === 'revealed' && (
+          <>
+            {explanation && (
+              <section aria-labelledby="explanation-heading">
+                <h3
+                  id="explanation-heading"
+                  className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"
+                >
+                  Grounded explanation
+                </h3>
+                <p className="text-slate-800 leading-relaxed border border-slate-100 rounded-lg p-4 bg-slate-50/80">
+                  {explanation}
+                </p>
+              </section>
+            )}
+
+            {grounded_tip && (
+              <section aria-labelledby="tip-heading">
+                <h3
+                  id="tip-heading"
+                  className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2"
+                >
+                  Financial tip (rule-grounded)
+                </h3>
+                <p className="text-slate-800 leading-relaxed border border-emerald-100 rounded-lg p-4 bg-emerald-50/60">
+                  {grounded_tip}
+                </p>
+                {grounded_rule_citation && (
+                  <p className="text-xs text-slate-500 mt-2">
+                    Rule touchpoints: {grounded_rule_citation}
+                  </p>
+                )}
+              </section>
+            )}
+
+            {quiz_question && (
+              <button
+                type="button"
+                onClick={() => {
+                  setPhase('quiz')
+                  setGradeResult(null)
+                  setGradeError(null)
+                }}
+                className="text-sm text-emerald-700 hover:text-emerald-800 underline"
+              >
+                Back to quiz
+              </button>
+            )}
+          </>
+        )}
+
+        <p className="text-xs text-slate-500 border-t border-slate-100 pt-4">
+          <strong className="text-slate-600">Disclaimer:</strong> This tool is for educational
+          purposes only and does not constitute financial advice. Consult a qualified professional
+          for your situation.
         </p>
       </div>
     </div>

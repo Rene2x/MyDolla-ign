@@ -68,12 +68,12 @@ function BudgetResults({ results, monthlyIncome }) {
     quiz_answer_key ||
     'Strong answers tie back to your actual income and category amounts and to the rules in financial_rules.md.'
 
-  const stepLine =
-    phase === 'quiz'
-      ? 'Step 1 of 3 — answer the quiz. Your response is sent to the grader before you see the full write-up.'
-      : phase === 'feedback'
-        ? 'Step 2 of 3 — review your grade and the answer key'
-        : 'Step 3 of 3 — grounded explanation and tip'
+ const stepLine =
+  phase === 'quiz'
+    ? 'Step 1 of 3 — answer the quiz before viewing the full explanation and tip.'
+    : phase === 'feedback'
+      ? 'Step 2 of 3 — review your grade, feedback, and answer key.'
+      : 'Step 3 of 3 — review the grounded explanation and financial tip.'
 
   const submitForGrading = async () => {
     const trimmed = answerDraft.trim()
@@ -156,7 +156,7 @@ function BudgetResults({ results, monthlyIncome }) {
             >
               Quiz
             </h3>
-            <p className="text-slate-800 leading-relaxed border-l-4 border-emerald-600 pl-4 py-1">
+            <p className="text-slate-800 leading-relaxed rounded-lg border border-emerald-100 bg-emerald-50/60 p-4">
               {quiz_question}
             </p>
             <div>

@@ -2,6 +2,7 @@
 // (quiz, verdict, answer key, explanation). Keep accessibility for the textarea and buttons.
 
 import { useState, useEffect } from 'react'
+import WhatIfPanel from './WhatIfPanel'
 
 function verdictStyles(verdict) {
   const v = (verdict || '').toUpperCase()
@@ -14,7 +15,7 @@ function verdictStyles(verdict) {
   return 'border-amber-200 bg-amber-50/70'
 }
 
-function BudgetResults({ results, monthlyIncome }) {
+function BudgetResults({ results, monthlyIncome, budgetPayload, onReanalyze, isReanalyzing }) {
   const [phase, setPhase] = useState('quiz')
   const [answerDraft, setAnswerDraft] = useState('')
   const [gradeResult, setGradeResult] = useState(null)
@@ -68,12 +69,12 @@ function BudgetResults({ results, monthlyIncome }) {
     quiz_answer_key ||
     'Strong answers tie back to your actual income and category amounts and to the rules in financial_rules.md.'
 
- const stepLine =
-  phase === 'quiz'
-    ? 'Step 1 of 3 — answer the quiz before viewing the full explanation and tip.'
-    : phase === 'feedback'
-      ? 'Step 2 of 3 — review your grade, feedback, and answer key.'
-      : 'Step 3 of 3 — review the grounded explanation and financial tip.'
+  const stepLine =
+    phase === 'quiz'
+      ? 'Step 1 of 3 — answer the quiz before viewing the full explanation and tip.'
+      : phase === 'feedback'
+        ? 'Step 2 of 3 — review your grade, feedback, and answer key.'
+        : 'Step 3 of 3 — review the grounded explanation and financial tip.'
 
   const submitForGrading = async () => {
     const trimmed = answerDraft.trim()
@@ -124,6 +125,14 @@ function BudgetResults({ results, monthlyIncome }) {
       </div>
 
       <div className="p-5 md:p-6 space-y-6">
+        {budgetPayload && onReanalyze && (
+          <WhatIfPanel
+            budgetPayload={budgetPayload}
+            onReanalyze={onReanalyze}
+            isLoading={Boolean(isReanalyzing)}
+          />
+        )}
+
         {breakdown && breakdown.length > 0 && income > 0 && (
           <section aria-labelledby="breakdown-heading">
             <h3

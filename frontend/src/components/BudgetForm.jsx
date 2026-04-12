@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { stableExpensesSignature } from '../utils/budgetPayload'
 
 const EXPENSE_CATEGORIES = [
   { id: 'rent', label: 'Rent / Housing', placeholder: '1200' },
@@ -17,12 +18,31 @@ const GOAL_OPTIONS = [
   { value: 'big_purchase', label: 'Save for big purchase' },
 ]
 
-function BudgetForm({ onSubmit, isLoading }) {
+function BudgetForm({ onSubmit, isLoading, syncedBudget }) {
   const [income, setIncome] = useState('')
   const [goal, setGoal] = useState('general')
   const [expenses, setExpenses] = useState(
     EXPENSE_CATEGORIES.reduce((acc, cat) => ({ ...acc, [cat.id]: '' }), {})
   )
+
+  const syncKey = syncedBudget
+    ? `${Number(syncedBudget.monthly_income) || 0}|${syncedBudget.goal}|${stableExpensesSignature(syncedBudget.expenses)}`
+    : ''
+
+  useEffect(() => {
+    if (!syncKey || !syncedBudget?.expenses) return
+    const inc = syncedBudget.monthly_income
+    setIncome(inc === 0 || inc === undefined ? '' : String(inc))
+    setGoal(GOAL_OPTIONS.some((o) => o.value === syncedBudget.goal) ? syncedBudget.goal : 'general')
+    setExpenses((prev) => {
+      const next = { ...prev }
+      EXPENSE_CATEGORIES.forEach((cat) => {
+        const v = syncedBudget.expenses[cat.id]
+        next[cat.id] = v === undefined || v === null ? '' : String(v)
+      })
+      return next
+    })
+  }, [syncKey])
 
   const handleSubmit = (e) => {
     e.preventDefault()

@@ -2,23 +2,27 @@ import { useState } from 'react'
 import Header from './components/Header'
 import BudgetForm from './components/BudgetForm'
 import BudgetResults from './components/BudgetResults'
+import { normalizeBudgetPayload } from './utils/budgetPayload'
 
 function App() {
   const [analysisResult, setAnalysisResult] = useState(null)
   const [monthlyIncome, setMonthlyIncome] = useState(0)
+  const [lastBudgetPayload, setLastBudgetPayload] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
 
   const handleBudgetSubmit = async (budgetData) => {
     setIsLoading(true)
     setError(null)
-    setMonthlyIncome(budgetData.monthly_income || 0)
+    const normalized = normalizeBudgetPayload(budgetData)
+    setLastBudgetPayload(normalized)
+    setMonthlyIncome(normalized.monthly_income || 0)
 
     try {
       const response = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(budgetData),
+        body: JSON.stringify(normalized),
       })
 
       if (!response.ok) {
@@ -58,7 +62,11 @@ function App() {
         </header>
 
         <section className="mb-6" id="budget">
-          <BudgetForm onSubmit={handleBudgetSubmit} isLoading={isLoading} />
+          <BudgetForm
+            onSubmit={handleBudgetSubmit}
+            isLoading={isLoading}
+            syncedBudget={lastBudgetPayload}
+          />
         </section>
 
         {isLoading && (
@@ -84,9 +92,15 @@ function App() {
           </div>
         )}
 
-        {analysisResult && !isLoading && (
-          <section className="mb-10">
-            <BudgetResults results={analysisResult} monthlyIncome={monthlyIncome} />
+        {analysisResult && (
+          <section className="mb-10 w-full min-w-0">
+            <BudgetResults
+              results={analysisResult}
+              monthlyIncome={monthlyIncome}
+              budgetPayload={lastBudgetPayload}
+              onReanalyze={handleBudgetSubmit}
+              isReanalyzing={isLoading}
+            />
           </section>
         )}
 

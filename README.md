@@ -47,23 +47,31 @@ MyDolla-Sign/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/           # React components
+│   │   ├── utils/                # Shared helpers (e.g. budget payload normalization)
 │   │   └── App.jsx               # Main app entry
 │   └── package.json
 ├── backend/
-│   ├── src/
-│   │   ├── ai_tutor.py           # AI Tutor Core
-│   │   ├── rule_engine.py        # Financial Rules Engine
-│   │   ├── prompt_templates.py   # Prompt Builder
-│   │   └── rules/
-│   │       └── financial_rules.json
-│   ├── demo.py                   # Interactive Demo Script
-│   ├── test_tutor.py             # Test Script
+│   ├── app/                      # Flask API + `ai_service` (production path)
+│   ├── demo.py                   # Terminal demo (`analyze_budget`, same as API)
+│   ├── test_tutor.py             # Smoke test for `analyze_budget`
 │   ├── requirements.txt
-│   └── main.py                   # Server entry point
+│   └── main.py                   # API entry (React UI in `frontend/`)
 └── CONTRIBUTING.md               # Team contribution guide
 ```
 
 ## How to Run
+
+### Quick start (full browser app)
+
+1. **Backend:** from `backend/`, create a venv, `pip install -r requirements.txt`, copy `.env.example` → `.env` (leave `GEMINI_API_KEY` empty if you want; the API still returns a full response using deterministic fallback).
+2. Run **`python main.py`** (default **http://127.0.0.1:5001**).
+3. **Frontend:** from `frontend/`, run **`npm install`** then **`npm run dev`** (default **http://localhost:3000**). The dev server proxies `/api` to port **5001** — keep the backend running.
+4. In the browser: fill the budget form → **Analyze** → quiz → grade → explanation/tip. Optionally use **What-if** after the first result to tweak one category and re-run Analyze (same API as the form).
+
+**Sanity checks:** `cd frontend && npm run build` should succeed; `cd backend && python test_tutor.py` should print `OK` after setup.
+
+**If you see `python-dotenv could not parse line 1`:** open `backend/.env` and ensure line 1 is either a comment (`# ...`) or `KEY=value` with no hidden/BOM characters (re-save as UTF-8 without BOM if needed).
+
 ## Milestone 2 User Flow
 
 1. Enter monthly income, expenses, and a goal.
@@ -102,12 +110,7 @@ source venv/bin/activate
 python demo.py
 ```
 
-This interactive demo will:
-1. Collect your budget information
-2. Analyze it using AI
-3. Quiz you with 2 to 3 questions
-4. Give you personalized tips
-5. Let you ask the AI any questions
+This demo prompts for a budget and prints the same fields as the API (advice, quiz, tip). Optional: `DEMO_JSON=1` for full JSON.
 
 ### Run the backend API
 ```bash
@@ -141,6 +144,7 @@ Open **http://localhost:3000**. The dev server proxies `/api` to the backend (se
 - [Financial Rules](docs/financial_rules.md)
 - [Milestone 2 demo guide](docs/milestone2_demo.md)
 - [Milestone 2 team handoff (three tasks)](docs/team_tasks_milestone2.md)
+- [AI vs deterministic fallback (Sprint 2)](docs/fallback_quality_assessment.md)
 
 ## Milestone 1 Deliverables
 

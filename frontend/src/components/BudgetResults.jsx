@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import WhatIfPanel from './WhatIfPanel'
 import BudgetComparison from './BudgetComparison'
+import ExpensePieChart from './ExpensePieChart'
 
 function verdictStyles(verdict) {
   const v = (verdict || '').toUpperCase()
@@ -136,7 +137,8 @@ function BudgetResults({ results, monthlyIncome, budgetPayload, onReanalyze, isR
           )}
         </p>
 
-        {/* Step Progress Indicator */}
+        <p className="text-xs text-slate-500 mt-2">{stepLine}</p>
+
         <div className="flex items-center justify-center gap-1 sm:gap-2 mt-4">
           {['quiz', 'feedback', 'revealed'].map((step, idx) => {
             const stepLabels = ['Quiz', 'Grading', 'Results']
@@ -191,6 +193,20 @@ function BudgetResults({ results, monthlyIncome, budgetPayload, onReanalyze, isR
         )}
 
         {breakdown && breakdown.length > 0 && income > 0 && (
+          <section aria-labelledby="pie-chart-heading">
+            <h3
+              id="pie-chart-heading"
+              className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3"
+            >
+              Expense breakdown
+            </h3>
+            <div className="rounded-lg border border-slate-200 bg-white p-4">
+              <ExpensePieChart breakdown={breakdown} monthlyIncome={income} />
+            </div>
+          </section>
+        )}
+
+        {breakdown && breakdown.length > 0 && income > 0 && (
           <section aria-labelledby="breakdown-heading">
             <h3
               id="breakdown-heading"
@@ -216,6 +232,12 @@ function BudgetResults({ results, monthlyIncome, budgetPayload, onReanalyze, isR
 
         {breakdown && breakdown.length > 0 && income > 0 && (
           <section aria-labelledby="comparison-heading">
+            <h3
+              id="comparison-heading"
+              className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3"
+            >
+              50/30/20 comparison
+            </h3>
             <BudgetComparison breakdown={breakdown} monthlyIncome={income} />
           </section>
         )}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import WhatIfPanel from './WhatIfPanel'
+import ExpensePieChart from './ExpensePieChart'
 
 function verdictStyles(verdict) {
   const v = (verdict || '').toUpperCase()
@@ -53,7 +54,7 @@ function BudgetResults({ results, monthlyIncome, budgetPayload, onReanalyze, isR
           'Month 3: Build toward an emergency fund and review progress.',
         ]
 
-  const income = monthlyIncome || 0
+  const income = Number(monthlyIncome) || 0
 
   const goalLabels = {
     general: 'General financial wellness',
@@ -76,6 +77,8 @@ function BudgetResults({ results, monthlyIncome, budgetPayload, onReanalyze, isR
   const answerKey =
     quiz_answer_key ||
     'Strong answers tie back to your actual income and category amounts and to the rules in financial_rules.md.'
+
+  const hasBreakdown = Array.isArray(breakdown) && breakdown.length > 0
 
   const stepLine =
     phase === 'quiz'
@@ -146,14 +149,17 @@ function BudgetResults({ results, monthlyIncome, budgetPayload, onReanalyze, isR
           />
         )}
 
-        {breakdown && breakdown.length > 0 && income > 0 && (
-          <section aria-labelledby="breakdown-heading">
+        {hasBreakdown && income > 0 && (
+          <section aria-labelledby="breakdown-heading" className="space-y-4">
             <h3
               id="breakdown-heading"
-              className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3"
+              className="text-xs font-semibold uppercase tracking-wide text-slate-500"
             >
               Your categories (from your inputs)
             </h3>
+
+            <ExpensePieChart breakdown={breakdown} monthlyIncome={income} />
+
             <ul className="space-y-2">
               {breakdown.map((item, i) => (
                 <li

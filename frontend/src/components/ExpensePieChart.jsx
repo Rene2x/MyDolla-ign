@@ -44,7 +44,6 @@ function ExpensePieChart({ breakdown, monthlyIncome }) {
     return null
   }
 
-  // Prepare data for pie chart (only show categories > 0)
   const chartData = breakdown
     .filter((item) => item.amount > 0)
     .map((item, index) => ({
@@ -56,8 +55,23 @@ function ExpensePieChart({ breakdown, monthlyIncome }) {
 
   if (chartData.length === 0) return null
 
+  const chartSummary = chartData
+    .map(
+      (item) =>
+        `${item.name}: $${item.value.toFixed(2)} (${item.percentage.toFixed(1)}% of income)`
+    )
+    .join('. ')
+
   return (
-    <div className="w-full">
+    <div
+      className="w-full"
+      role="img"
+      aria-label={`Expense breakdown pie chart. ${chartSummary}`}
+    >
+      <p className="sr-only">
+        Expense breakdown by category. {chartSummary}
+      </p>
+
       <ResponsiveContainer width="100%" height={300}>
         <PieChart>
           <Pie
@@ -104,7 +118,7 @@ function ExpensePieChart({ breakdown, monthlyIncome }) {
             verticalAlign="bottom"
             height={36}
             formatter={(value, entry) => (
-              <span style={{ color: entry.color, fontSize: '12px' }}>
+              <span className="text-slate-700 text-sm font-medium">
                 {value}
               </span>
             )}

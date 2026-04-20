@@ -33,7 +33,11 @@ function BudgetForm({ onSubmit, isLoading, syncedBudget }) {
     if (!syncKey || !syncedBudget?.expenses) return
     const inc = syncedBudget.monthly_income
     setIncome(inc === 0 || inc === undefined ? '' : String(inc))
-    setGoal(GOAL_OPTIONS.some((o) => o.value === syncedBudget.goal) ? syncedBudget.goal : 'general')
+    setGoal(
+      GOAL_OPTIONS.some((o) => o.value === syncedBudget.goal)
+        ? syncedBudget.goal
+        : 'general'
+    )
     setExpenses((prev) => {
       const next = { ...prev }
       EXPENSE_CATEGORIES.forEach((cat) => {
@@ -42,7 +46,7 @@ function BudgetForm({ onSubmit, isLoading, syncedBudget }) {
       })
       return next
     })
-  }, [syncKey])
+  }, [syncKey, syncedBudget])
 
   const handleSubmit = (e) => {
     e.preventDefault()
@@ -88,7 +92,10 @@ function BudgetForm({ onSubmit, isLoading, syncedBudget }) {
             Monthly income
           </label>
           <div className="relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium">
+            <span
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-medium"
+              aria-hidden="true"
+            >
               $
             </span>
             <input
@@ -130,10 +137,10 @@ function BudgetForm({ onSubmit, isLoading, syncedBudget }) {
           </select>
         </div>
 
-        <div className="mb-8">
-          <h3 className="text-sm font-semibold text-slate-700 mb-4">
+        <fieldset className="mb-8">
+          <legend className="text-sm font-semibold text-slate-700 mb-4">
             Monthly expenses
-          </h3>
+          </legend>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {EXPENSE_CATEGORIES.map((category) => (
               <div key={category.id}>
@@ -144,7 +151,10 @@ function BudgetForm({ onSubmit, isLoading, syncedBudget }) {
                   {category.label}
                 </label>
                 <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+                  <span
+                    className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"
+                    aria-hidden="true"
+                  >
                     $
                   </span>
                   <input
@@ -165,9 +175,12 @@ function BudgetForm({ onSubmit, isLoading, syncedBudget }) {
               </div>
             ))}
           </div>
-        </div>
+        </fieldset>
 
-        <div className="bg-slate-50 rounded-md p-3 mb-5 border border-slate-200">
+        <div
+          className="bg-slate-50 rounded-md p-3 mb-5 border border-slate-200"
+          aria-live="polite"
+        >
           <div className="flex justify-between text-sm text-slate-600 mb-2">
             <span>Total expenses</span>
             <span className="font-semibold tabular-nums">
@@ -199,7 +212,7 @@ function BudgetForm({ onSubmit, isLoading, syncedBudget }) {
                 className="animate-spin h-5 w-5 text-white"
                 fill="none"
                 viewBox="0 0 24 24"
-                aria-hidden
+                aria-hidden="true"
               >
                 <circle
                   className="opacity-25"
@@ -215,7 +228,7 @@ function BudgetForm({ onSubmit, isLoading, syncedBudget }) {
                   d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                 />
               </svg>
-              Analyze
+              Analyzing budget...
             </>
           ) : (
             'Analyze'

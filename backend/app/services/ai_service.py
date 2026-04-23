@@ -572,7 +572,7 @@ def generate_fallback_response(budget: BudgetInput) -> Dict[str, Any]:
     if budget.remaining < 0:
         financial_advice += (
             f"⚠️ Your expenses exceed income by ${abs(budget.remaining):.2f}. "
-            "Focus on reducing spending or increasing income before saving."
+            "Focus on reducing spending or increasing income before saving. "
         )
     elif housing_pct > 30:
         financial_advice += (

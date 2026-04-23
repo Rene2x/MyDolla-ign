@@ -19,7 +19,7 @@ Sprint 2 landed every P0 item: the pie chart, 50/30/20 comparison, what-if panel
 | Task | Owner | Description |
 |---|---|---|
 | Quantitative metrics table | Allison | Create a scored table in `docs/evaluation_metrics.md`: (a) grounding accuracy, percent of explanations that reference at least one of the user's actual expense numbers, (b) quiz relevance, percent of quiz questions tied to a submitted category, (c) tip-to-rule mapping, percent of tips traceable to a rule in `financial_rules.md`. Run against at least 10 of the 20 scenarios in `evaluation_test_cases.md`. Include raw JSON samples. |
-| Fallback side-by-side results | Rene | Extend `docs/fallback_quality_assessment.md` with actual AI and deterministic outputs for the 5 scenarios already listed. Toggle by unsetting the API key for deterministic runs. Note concrete differences in tone, specificity, and numeric grounding. |
+| Fallback side-by-side results | Rene | Extend `docs/fallback_quality_assessment.md` with actual AI and deterministic outputs for the 5 scenarios already listed. Toggle by unsetting the API key for deterministic runs. Note concrete differences in tone, specificity, and numeric grounding. **Delivered:** deterministic column + capture procedure; run `backend/scripts/sprint3_capture_ai_column.py` with `GEMINI_API_KEY` set to fill the AI JSON fences. |
 | Real user testing | Gauge + Hugo | Recruit 3 to 5 non-team-member testers (other CSCI students are fine). Each tester inputs their own budget, walks through all three steps, and fills a short feedback form (clarity, trust, usefulness, one bug, one ask). Save notes to `docs/user_testing.md`. |
 
 ### P1 — Demo Readiness (Days 2–5)
@@ -37,7 +37,7 @@ Sprint 2 landed every P0 item: the pie chart, 50/30/20 comparison, what-if panel
 |---|---|---|
 | BudgetResults refactor | Gauge | `frontend/src/components/BudgetResults.jsx` now hosts pie chart, comparison, what-if, saving plan, and step animations in one file. Split into at least two subcomponents so the final demo code review is readable. |
 | Pie chart label alignment | Gauge | Fix the minor label misalignment noted in `edge_case_testing.md` under "Minor Issues Identified". |
-| What-if edge cases | Rene | Test the what-if panel under: reducing a category to a negative value, reducing all categories simultaneously, increasing a category beyond income. Add input clamping if needed. |
+| What-if edge cases | Rene | Test the what-if panel under: reducing a category to a negative value, reducing all categories simultaneously, increasing a category beyond income. Add input clamping if needed. **Delivered:** see `docs/what_if_edge_cases.md` and `WhatIfPanel.jsx` (floor at $0, cap line at income, **Decrease all categories**). |
 | Token limit regression check | Hugo | Confirm the AI token limit increase from commit `87d9b78` does not cause truncation on long budgets. Add 1 to 2 test cases to `backend/test_tutor.py`. |
 
 ### P3 — Nice to Have (Days 5–7)

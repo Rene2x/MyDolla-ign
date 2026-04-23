@@ -83,6 +83,8 @@ MyDolla-Sign/
 
 **Sanity checks:** `cd frontend && npm run build` should succeed; `cd backend && python test_tutor.py` should print `OK` after setup.
 
+**Prerecording a backup demo (~5 min):** use `docs/backup_video_recording_guide.md` for a short shot list. Leaving `GEMINI_API_KEY` unset keeps responses deterministic and shows **Deterministic fallback (no AI call)** in the results header—ideal for a stable screen capture.
+
 **If you see `python-dotenv could not parse line 1`:** open `backend/.env` and ensure line 1 is either a comment (`# ...`) or `KEY=value` with no hidden/BOM characters (re-save as UTF-8 without BOM if needed).
 
 ## Milestone 2 User Flow

@@ -46,7 +46,7 @@ Sprint 2 landed every P0 item: the pie chart, 50/30/20 comparison, what-if panel
 |---|---|---|
 | Error toast component | Hugo | Replace any raw error text with a dismissible toast so failed API calls look clean during the live demo. |
 | Accessibility pass | Allison | Check color contrast on the pie chart and step indicator, add alt text where relevant, keyboard navigation through the form. |
-| Record backup demo video | Rene | Record a 5 minute screen capture of the full flow as a fallback if the live demo fails on April 29. |
+| Record backup demo video | Rene | Record a 5 minute screen capture of the full flow as a fallback if the live demo fails on April 29. **Shot list:** `docs/backup_video_recording_guide.md` (deterministic path = leave API key unset; results header shows the source). |
 
 ---
 

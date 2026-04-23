@@ -157,7 +157,7 @@ Open **http://localhost:3000**. The dev server proxies `/api` to the backend (se
 - [Financial Rules](docs/financial_rules.md)
 - [Milestone 2 demo guide](docs/milestone2_demo.md)
 - [Milestone 2 team handoff (three tasks)](docs/team_tasks_milestone2.md)
-- [AI vs deterministic fallback (Sprint 2)](docs/fallback_quality_assessment.md)
+- [AI vs deterministic fallback (Sprint 2–3)](docs/fallback_quality_assessment.md) — use `backend/scripts/sprint3_capture_ai_column.py` with `GEMINI_API_KEY` set to paste live model JSON into the doc’s AI column.
 
 ## Milestone 1 Deliverables
 

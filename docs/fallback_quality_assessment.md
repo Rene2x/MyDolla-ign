@@ -191,3 +191,5 @@ Paste each printed JSON block into the matching scenario below (replace the plac
 Category percentages and `breakdown` are always computed in Python (`parse_ai_response` / `generate_fallback_response`), not invented by the model.
 
 Check `output_source` on `POST /api/analyze` to know which path ran.
+
+See also [What-if edge cases](./what_if_edge_cases.md) (Sprint 3 clamping and decrease-all behavior).

@@ -88,4 +88,4 @@
 
 ## Backup if live fails
 
-Use the prerecorded walkthrough (see Sprint 3 / Sprint 4 tasks) or Scenario 3-only path if only the API fails.
+Use the prerecorded walkthrough (see Sprint 3 / Sprint 4 tasks) or Scenario 3-only path if only the API fails. Shot list: [backup_video_recording_guide.md](backup_video_recording_guide.md).

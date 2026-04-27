@@ -83,6 +83,8 @@ MyDolla-Sign/
 
 **Sanity checks:** `cd frontend && npm run build` should succeed; `cd backend && python test_tutor.py` should print `OK` after setup.
 
+**Backup demo recording (~5 min):** see [docs/backup_video_recording_guide.md](docs/backup_video_recording_guide.md) for a short shot list (works well with API key unset so **Output source** shows deterministic fallback).
+
 **If you see `python-dotenv could not parse line 1`:** open `backend/.env` and ensure line 1 is either a comment (`# ...`) or `KEY=value` with no hidden/BOM characters (re-save as UTF-8 without BOM if needed).
 
 ## Milestone 2 User Flow
@@ -157,7 +159,9 @@ Open **http://localhost:3000**. The dev server proxies `/api` to the backend (se
 - [Financial Rules](docs/financial_rules.md)
 - [Milestone 2 demo guide](docs/milestone2_demo.md)
 - [Milestone 2 team handoff (three tasks)](docs/team_tasks_milestone2.md)
-- [AI vs deterministic fallback (Sprint 2–3)](docs/fallback_quality_assessment.md) — use `backend/scripts/sprint3_capture_ai_column.py` with `GEMINI_API_KEY` set to paste live model JSON into the doc’s AI column.
+- [AI vs deterministic fallback (Sprint 2–3)](docs/fallback_quality_assessment.md) — use `backend/scripts/sprint3_capture_ai_column.py` with `GEMINI_API_KEY` + SDK to paste live model JSON into the doc’s AI column.
+- [What-if edge cases (Sprint 3)](docs/what_if_edge_cases.md)
+- [Backup demo recording guide](docs/backup_video_recording_guide.md)
 
 ## Milestone 1 Deliverables
 

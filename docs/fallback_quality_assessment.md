@@ -196,3 +196,5 @@ The **Deterministic** JSON below was produced with no Studio key (same inputs as
 Category percentages and `breakdown` are always computed in Python (`parse_ai_response` / `generate_fallback_response`), not invented by the model.
 
 Use `POST /api/analyze` and the `output_source` field in the JSON to tell which path ran.
+
+See also [What-if edge cases](./what_if_edge_cases.md).

@@ -47,10 +47,6 @@ function App() {
 
       <main className="mx-auto w-full max-w-3xl px-4 py-8 md:px-6 md:py-12">
         <header className="mb-8 md:mb-10">
-          <div className="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-medium text-emerald-200 mb-4">
-            Milestone 2 MVP
-          </div>
-
           <h1 className="text-3xl md:text-4xl font-semibold tracking-tight text-white mb-3">
             Budget check-in
           </h1>
